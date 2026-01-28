@@ -84,9 +84,6 @@ class WhatsappService
                 'instance' => $instanceName,
             ]);
 
-            // Connect instance
-            $connectResponse = $this->makeRequest('POST', "/instance/connect/{$instanceName}");
-
             // Update account status
             $account->update([
                 'status' => 'connecting',
@@ -98,7 +95,7 @@ class WhatsappService
 
             return [
                 'instance' => $instanceName,
-                'qrcode' => $connectResponse['qrcode'] ?? null,
+                'qrcode' => $response['qrcode'] ?? null,
             ];
 
         } catch (\Exception $e) {
@@ -120,9 +117,9 @@ class WhatsappService
         try {
             $instanceName = $this->getInstanceName($account);
             
-            $response = $this->makeRequest('GET', "/instance/connect/{$instanceName}");
+            $response = $this->makeRequest('GET', "/instance/fetchInstances?instanceName={$instanceName}");
             
-            return $response['qrcode']['base64'] ?? null;
+            return $response['instance']['qrcode']['base64'] ?? null;
         } catch (\Exception $e) {
             Log::error('Failed to get QR code', [
                 'account_id' => $account->id,
