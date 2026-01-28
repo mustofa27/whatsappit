@@ -99,6 +99,7 @@ class WhatsappService
             Log::info('WhatsApp instance created', [
                 'account_id' => $account->id,
                 'instance' => $instanceName,
+                'response' => $response,
             ]);
 
             // Update account status
@@ -110,9 +111,29 @@ class WhatsappService
                 ]),
             ]);
 
+            // Extract QR code from response
+            $qrCode = null;
+            if (isset($response['qrcode'])) {
+                if (is_array($response['qrcode'])) {
+                    // Try different possible keys
+                    $qrCode = $response['qrcode']['base64'] 
+                           ?? $response['qrcode']['code'] 
+                           ?? $response['qrcode']['pairingCode']
+                           ?? null;
+                } else {
+                    $qrCode = $response['qrcode'];
+                }
+            }
+            
+            // Also check top-level keys
+            if (!$qrCode) {
+                $qrCode = $response['base64'] ?? $response['code'] ?? null;
+            }
+
             return [
                 'instance' => $instanceName,
-                'qrcode' => $response['qrcode'] ?? null,
+                'qrcode' => $qrCode,
+                'full_response' => $response,
             ];
 
         } catch (\Exception $e) {
