@@ -111,29 +111,29 @@ class WhatsappService
                 ]),
             ]);
 
-            // Extract QR code from response
-            $qrCode = null;
-            if (isset($response['qrcode'])) {
-                if (is_array($response['qrcode'])) {
-                    // Try different possible keys
-                    $qrCode = $response['qrcode']['base64'] 
-                           ?? $response['qrcode']['code'] 
-                           ?? $response['qrcode']['pairingCode']
-                           ?? null;
-                } else {
-                    $qrCode = $response['qrcode'];
-                }
-            }
+            // Wait a bit for QR code generation
+            sleep(2);
             
-            // Also check top-level keys
-            if (!$qrCode) {
-                $qrCode = $response['base64'] ?? $response['code'] ?? null;
+            // Fetch QR code from instance
+            try {
+                $qrResponse = $this->makeRequest('GET', "/instance/connect/{$instanceName}");
+                $qrCode = $qrResponse['base64'] ?? $qrResponse['code'] ?? null;
+                
+                Log::info('QR code fetched', [
+                    'instance' => $instanceName,
+                    'has_qr' => !empty($qrCode),
+                ]);
+            } catch (\Exception $e) {
+                Log::warning('Failed to fetch QR code', [
+                    'instance' => $instanceName,
+                    'error' => $e->getMessage(),
+                ]);
+                $qrCode = null;
             }
 
             return [
                 'instance' => $instanceName,
                 'qrcode' => $qrCode,
-                'full_response' => $response,
             ];
 
         } catch (\Exception $e) {
@@ -155,9 +155,11 @@ class WhatsappService
         try {
             $instanceName = $this->getInstanceName($account);
             
-            $response = $this->makeRequest('GET', "/instance/fetchInstances?instanceName={$instanceName}");
+            $response = $this->makeRequest('GET', "/instance/connect/{$instanceName}");
             
-            return $response['instance']['qrcode']['base64'] ?? null;
+            Log::info('getQRCode response', ['response' => $response]);
+            
+            return $response['base64'] ?? $response['code'] ?? null;
         } catch (\Exception $e) {
             Log::error('Failed to get QR code', [
                 'account_id' => $account->id,
