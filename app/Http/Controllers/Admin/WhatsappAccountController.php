@@ -120,11 +120,25 @@ class WhatsappAccountController extends Controller
         try {
             // Initialize Evolution API instance and get QR code
             $result = $this->whatsappService->initialize($account);
-            $qrCode = $result['qrcode'] ?? null;
+            $qrCode = null;
             
+            // Extract base64 from qrcode response
+            if (isset($result['qrcode'])) {
+                if (is_array($result['qrcode'])) {
+                    $qrCode = $result['qrcode']['base64'] ?? $result['qrcode']['code'] ?? null;
+                } else {
+                    $qrCode = $result['qrcode'];
+                }
+            }
+            
+            // Try to get QR code separately if not found
             if (!$qrCode) {
-                // Try to get QR code separately
                 $qrCode = $this->whatsappService->getQRCode($account);
+            }
+            
+            // Ensure it has data:image prefix
+            if ($qrCode && !str_starts_with($qrCode, 'data:image')) {
+                $qrCode = 'data:image/png;base64,' . $qrCode;
             }
             
             return view('admin.accounts.connect-new', compact('account', 'qrCode'));
