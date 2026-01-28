@@ -72,6 +72,23 @@ class WhatsappService
         try {
             $instanceName = $this->getInstanceName($account);
 
+            // Check if instance already exists
+            try {
+                $existingInstance = $this->makeRequest('GET', "/instance/fetchInstances?instanceName={$instanceName}");
+                
+                // Instance exists, check if connected
+                $state = $existingInstance['instance']['state'] ?? 'close';
+                
+                if ($state !== 'open') {
+                    // Instance exists but not connected, delete and recreate
+                    $this->makeRequest('DELETE', "/instance/delete/{$instanceName}");
+                    Log::info('Deleted existing disconnected instance', ['instance' => $instanceName]);
+                }
+            } catch (\Exception $e) {
+                // Instance doesn't exist, continue to create
+                Log::info('Instance not found, creating new', ['instance' => $instanceName]);
+            }
+
             // Create instance
             $response = $this->makeRequest('POST', '/instance/create', [
                 'instanceName' => $instanceName,
