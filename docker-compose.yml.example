@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: evolution-postgres
+    environment:
+      POSTGRES_USER: your_db_user
+      POSTGRES_PASSWORD: your_db_password
+      POSTGRES_DB: evolution
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - evolution-network
+
+  evolution-api:
+    image: atendai/evolution-api
+    container_name: evolution-api
+    depends_on:
+      - postgres
+    environment:
+      AUTHENTICATION_API_KEY: your-secret-api-key-here
+      DATABASE_ENABLED: true
+      DATABASE_PROVIDER: postgresql
+      DATABASE_CONNECTION_URI: postgresql://your_db_user:your_db_password@postgres:5432/evolution
+      DATABASE_SAVE_DATA_INSTANCE: true
+      DATABASE_SAVE_DATA_NEW_MESSAGE: true
+      DATABASE_SAVE_DATA_CONTACTS: true
+      DATABASE_SAVE_DATA_CHATS: true
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - evolution-network
+    volumes:
+      - evolution_instances:/evolution/instances
+
+networks:
+  evolution-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  evolution_instances:
