@@ -84,6 +84,17 @@ class WhatsappController extends Controller
 
         // Send message
         try {
+            // Add 2-3 second delay to simulate human behavior and prevent spam detection
+            $lastMessage = WhatsappMessage::where('whatsapp_account_id', $account->id)
+                ->where('created_at', '>', now()->subSeconds(5))
+                ->latest()
+                ->first();
+                
+            if ($lastMessage) {
+                // Add random delay between 2-4 seconds
+                sleep(rand(2, 4));
+            }
+            
             $this->whatsappService->sendMessage($account, $message);
 
             return response()->json([
