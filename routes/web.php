@@ -23,9 +23,9 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     
     // WhatsApp Accounts Management
     Route::resource('accounts', WhatsappAccountController::class);
-    Route::get('accounts/{account}/connect', [WhatsappAccountController::class, 'connect'])->name('accounts.connect');
-    Route::get('accounts/{account}/check-status', [WhatsappAccountController::class, 'checkStatus'])->name('accounts.check-status');
-    Route::post('accounts/{account}/initialize', [WhatsappAccountController::class, 'initialize'])->name('accounts.initialize');
+    Route::get('accounts/{account}/verify', [WhatsappAccountController::class, 'verify'])->name('accounts.verify');
+    Route::post('accounts/{account}/request-code', [WhatsappAccountController::class, 'requestCode'])->name('accounts.request-code');
+    Route::post('accounts/{account}/verify-code', [WhatsappAccountController::class, 'verifyCode'])->name('accounts.verify-code');
     Route::post('accounts/{account}/disconnect', [WhatsappAccountController::class, 'disconnect'])->name('accounts.disconnect');
     Route::post('accounts/{account}/regenerate-keys', [WhatsappAccountController::class, 'regenerateKeys'])->name('accounts.regenerate');
     

@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Services\WhatsappService;
+use App\Services\MetaWhatsappService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -14,8 +14,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(WhatsappService::class, function ($app) {
-            return new WhatsappService();
+        $this->app->singleton(MetaWhatsappService::class, function ($app) {
+            return new MetaWhatsappService();
         });
     }
 

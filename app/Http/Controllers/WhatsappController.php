@@ -4,16 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\WhatsappAccount;
 use App\Models\WhatsappMessage;
-use App\Services\WhatsappService;
+use App\Services\MetaWhatsappService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class WhatsappController extends Controller
 {
-    protected WhatsappService $whatsappService;
+    protected MetaWhatsappService $whatsappService;
 
-    public function __construct(WhatsappService $whatsappService)
+    public function __construct(MetaWhatsappService $whatsappService)
     {
         $this->whatsappService = $whatsappService;
     }
@@ -53,11 +53,11 @@ class WhatsappController extends Controller
             ], 401);
         }
 
-        // Check if account is connected
-        if (!$account->isConnected()) {
+        // Check if account is verified
+        if (!$account->is_verified) {
             return response()->json([
                 'success' => false,
-                'message' => 'WhatsApp account is not connected. Please initialize your account first.',
+                'message' => 'WhatsApp account is not verified. Please verify your account first.',
             ], 400);
         }
 

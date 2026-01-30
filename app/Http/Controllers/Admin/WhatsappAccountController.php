@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\WhatsappAccount;
-use App\Services\WhatsappService;
+use App\Services\MetaWhatsappService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -13,7 +13,7 @@ class WhatsappAccountController extends Controller
 {
     protected $whatsappService;
 
-    public function __construct(WhatsappService $whatsappService)
+    public function __construct(MetaWhatsappService $whatsappService)
     {
         $this->whatsappService = $whatsappService;
     }
@@ -42,13 +42,19 @@ class WhatsappAccountController extends Controller
         // Generate sender_key and sender_secret
         $validated['sender_key'] = 'sk_' . Str::random(32);
         $validated['sender_secret'] = 'ss_' . Str::random(40);
-        $validated['status'] = 'disconnected';
+        $validated['status'] = 'pending';
+        $validated['provider'] = 'meta';
+        
+        // Set default Meta credentials from config if available
+        $validated['phone_number_id'] = config('services.meta_whatsapp.default_phone_number_id');
+        $validated['waba_id'] = config('services.meta_whatsapp.default_waba_id');
+        $validated['access_token'] = config('services.meta_whatsapp.default_access_token');
 
         $account = WhatsappAccount::create($validated);
 
-        // Redirect to connect page to scan QR code
-        return redirect()->route('admin.accounts.connect', $account)
-            ->with('success', 'WhatsApp account created! Please scan the QR code to connect.');
+        // Redirect to verify page
+        return redirect()->route('admin.accounts.verify', $account)
+            ->with('success', 'WhatsApp account created! Please verify your phone number.');
     }
 
     public function show(WhatsappAccount $account)
@@ -78,9 +84,9 @@ class WhatsappAccountController extends Controller
 
     public function destroy(WhatsappAccount $account)
     {
-        // Delete Evolution API instance before deleting account
         try {
-            $this->whatsappService->deleteInstance($account);
+            // Disconnect from Meta
+            $this->whatsappService->disconnect($account);
         } catch (\Exception $e) {
             // Log but don't prevent deletion
         }
@@ -91,16 +97,38 @@ class WhatsappAccountController extends Controller
             ->with('success', 'WhatsApp account deleted successfully!');
     }
 
-    public function initialize(Request $request, WhatsappAccount $account)
+    public function verify(WhatsappAccount $account)
+    {
+        return view('admin.accounts.verify-meta', compact('account'));
+    }
+
+    public function requestCode(Request $request, WhatsappAccount $account)
     {
         try {
-            $result = $this->whatsappService->initialize($account);
+            $result = $this->whatsappService->requestVerificationCode($account);
             
-            return redirect()->route('admin.accounts.connect', $account)
-                ->with('success', 'Initialization started. Please scan the QR code with WhatsApp.');
+            return redirect()->route('admin.accounts.verify', $account)
+                ->with('success', 'Verification code sent to ' . $account->phone_number . '. Check your SMS.');
         } catch (\Exception $e) {
+            return redirect()->route('admin.accounts.verify', $account)
+                ->with('error', 'Failed to send verification code: ' . $e->getMessage());
+        }
+    }
+
+    public function verifyCode(Request $request, WhatsappAccount $account)
+    {
+        $request->validate([
+            'code' => 'required|string|size:6',
+        ]);
+
+        try {
+            $this->whatsappService->verifyPhoneNumber($account, $request->code);
+            
             return redirect()->route('admin.accounts.show', $account)
-                ->with('error', 'Failed to initialize: ' . $e->getMessage());
+                ->with('success', 'Phone number verified successfully! Your account is ready to send messages.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.accounts.verify', $account)
+                ->with('error', $e->getMessage());
         }
     }
 
@@ -113,62 +141,6 @@ class WhatsappAccountController extends Controller
 
         return redirect()->route('admin.accounts.show', $account)
             ->with('success', 'API keys regenerated successfully!');
-    }
-
-    public function connect(WhatsappAccount $account)
-    {
-        try {
-            // Initialize Evolution API instance and get QR code
-            $result = $this->whatsappService->initialize($account);
-            $qrCode = null;
-            
-            // Extract base64 from qrcode response
-            if (isset($result['qrcode'])) {
-                if (is_array($result['qrcode'])) {
-                    $qrCode = $result['qrcode']['base64'] ?? $result['qrcode']['code'] ?? null;
-                } else {
-                    $qrCode = $result['qrcode'];
-                }
-            }
-            
-            // Try to get QR code separately if not found
-            if (!$qrCode) {
-                $qrCode = $this->whatsappService->getQRCode($account);
-            }
-            
-            // Ensure it has data:image prefix
-            if ($qrCode && !str_starts_with($qrCode, 'data:image')) {
-                $qrCode = 'data:image/png;base64,' . $qrCode;
-            }
-            
-            return view('admin.accounts.connect-new', compact('account', 'qrCode'));
-        } catch (\Exception $e) {
-            return redirect()->route('admin.accounts.show', $account)
-                ->with('error', 'Failed to generate QR code: ' . $e->getMessage());
-        }
-    }
-
-    public function checkStatus(WhatsappAccount $account)
-    {
-        try {
-            // Check status via Evolution API
-            $status = $this->whatsappService->checkStatus($account);
-            
-            // Refresh account from database
-            $account->refresh();
-            
-            return response()->json([
-                'status' => $account->status,
-                'connected' => $status['connected'],
-                'qr_code' => $account->qr_code,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'connected' => false,
-                'error' => $e->getMessage(),
-            ]);
-        }
     }
 
     public function disconnect(WhatsappAccount $account)

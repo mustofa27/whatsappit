@@ -35,4 +35,22 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Meta WhatsApp Cloud API Configuration
+    |--------------------------------------------------------------------------
+    */
+    
+    'meta_whatsapp' => [
+        'api_version' => env('META_WHATSAPP_API_VERSION', 'v21.0'),
+        'app_id' => env('META_WHATSAPP_APP_ID'),
+        'app_secret' => env('META_WHATSAPP_APP_SECRET'),
+        'verify_token' => env('META_WHATSAPP_VERIFY_TOKEN', 'whatsappit_verify_token'),
+        
+        // Default credentials (can be overridden per account)
+        'default_phone_number_id' => env('META_WHATSAPP_PHONE_ID'),
+        'default_waba_id' => env('META_WHATSAPP_BUSINESS_ID'),
+        'default_access_token' => env('META_WHATSAPP_ACCESS_TOKEN'),
+    ],
+
 ];

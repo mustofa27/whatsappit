@@ -67,9 +67,9 @@
                             <i class="bi bi-pencil me-2"></i> Edit
                         </a>
                         
-                        @if($account->status != 'connected')
-                        <a href="{{ route('admin.accounts.connect', $account) }}" class="btn btn-success">
-                            <i class="bi bi-qr-code me-2"></i> Connect WhatsApp
+                        @if(!$account->is_verified)
+                        <a href="{{ route('admin.accounts.verify', $account) }}" class="btn btn-success">
+                            <i class="bi bi-check-circle me-2"></i> Verify Phone Number
                         </a>
                         @else
                         <form action="{{ route('admin.accounts.disconnect', $account) }}" method="POST" class="d-inline">
