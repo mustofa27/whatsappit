@@ -29,7 +29,7 @@ class WhatsappController extends Controller
             'sender_key' => 'required|string',
             'sender_secret' => 'required|string',
             'to' => 'required|string',
-            'message' => 'required_without:image|string',
+            'message' => 'nullable|string',
             'image' => 'nullable|file|mimes:jpeg,jpg,png,gif|max:5120', // max 5MB
         ]);
 
@@ -38,6 +38,29 @@ class WhatsappController extends Controller
                 'success' => false,
                 'message' => 'Validation failed',
                 'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $hasTemplate = (bool) config('services.meta_whatsapp.default_template_name');
+        $templateParams = (int) config('services.meta_whatsapp.default_template_params', 0);
+
+        if (!$request->hasFile('image') && !$hasTemplate && !$request->filled('message')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => [
+                    'message' => ['The message field is required when image is not present.'],
+                ],
+            ], 422);
+        }
+
+        if ($hasTemplate && $templateParams > 0 && !$request->filled('message')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => [
+                    'message' => ['The message field is required for template parameters.'],
+                ],
             ], 422);
         }
 

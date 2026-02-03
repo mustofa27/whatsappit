@@ -48,6 +48,7 @@ return [
         'verify_token' => env('META_WHATSAPP_VERIFY_TOKEN', 'whatsappit_verify_token'),
         'default_template_name' => env('META_WHATSAPP_TEMPLATE_NAME'),
         'default_template_language' => env('META_WHATSAPP_TEMPLATE_LANGUAGE', 'en_US'),
+        'default_template_params' => env('META_WHATSAPP_TEMPLATE_PARAMS', 0),
         
         // Default credentials (can be overridden per account)
         'default_phone_number_id' => env('META_WHATSAPP_PHONE_ID'),

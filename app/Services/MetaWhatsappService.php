@@ -123,6 +123,7 @@ class MetaWhatsappService
 
             $templateName = config('services.meta_whatsapp.default_template_name');
             $templateLanguage = config('services.meta_whatsapp.default_template_language', 'en_US');
+            $templateParams = (int) config('services.meta_whatsapp.default_template_params', 0);
 
             // Check if this is a new conversation (requires template)
             // Use template if configured, otherwise fallback to text/media
@@ -135,7 +136,7 @@ class MetaWhatsappService
                     ],
                 ];
 
-                if ($message->message) {
+                if ($templateParams > 0 && $message->message) {
                     $messageData['template']['components'] = [
                         [
                             'type' => 'body',
