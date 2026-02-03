@@ -18,6 +18,14 @@ class WhatsappAccount extends Model
         'sender_key',
         'sender_secret',
         'status',
+        'provider',
+        'phone_number_id',
+        'waba_id',
+        'access_token',
+        'is_verified',
+        'verification_code',
+        'verification_code_sent_at',
+        'external_id',
         'qr_code',
         'session_data',
         'last_connected_at',
@@ -25,6 +33,8 @@ class WhatsappAccount extends Model
 
     protected $casts = [
         'last_connected_at' => 'datetime',
+        'verification_code_sent_at' => 'datetime',
+        'is_verified' => 'boolean',
     ];
 
     protected $hidden = [

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>WhatsApp IT - WhatsApp API Service</title>
+    <title>WAIt - WhatsApp API Service</title>
     
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -252,7 +252,7 @@
     <nav class="navbar navbar-expand-lg navbar-landing fixed-top" id="mainNavbar">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <i class="bi bi-whatsapp me-2"></i>WhatsApp IT
+                <i class="bi bi-whatsapp me-2"></i>WAIt
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -424,7 +424,7 @@ Content-Type: application/json
   "sender_key": "your-sender-key",
   "sender_secret": "your-sender-secret",
   "recipient": "6281234567890",
-  "message": "Hello from WhatsApp IT!"
+  "message": "Hello from WAIt!"
 }</code></pre>
                     </div>
                 </div>
@@ -436,7 +436,7 @@ Content-Type: application/json
     <section class="cta-section">
         <div class="container text-center">
             <h2 class="cta-title">Ready to Get Started?</h2>
-            <p class="cta-text">Join hundreds of developers using WhatsApp IT to power their messaging</p>
+            <p class="cta-text">Join hundreds of developers using WAIt to power their messaging</p>
             <a href="{{ route('register') }}" class="btn btn-hero btn-hero-primary">
                 Create Free Account
             </a>
@@ -448,11 +448,11 @@ Content-Type: application/json
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h5><i class="bi bi-whatsapp me-2"></i>WhatsApp IT</h5>
+                    <h5><i class="bi bi-whatsapp me-2"></i>WAIt</h5>
                     <p class="text-muted mb-0">WhatsApp API Service for Developers</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <p class="text-muted mb-0">&copy; {{ date('Y') }} WhatsApp IT. All rights reserved.</p>
+                    <p class="text-muted mb-0">&copy; {{ date('Y') }} WAIt. All rights reserved.</p>
                 </div>
             </div>
         </div>

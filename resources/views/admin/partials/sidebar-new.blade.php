@@ -1,6 +1,6 @@
 <div class="sidebar d-flex flex-column" id="sidebar">
     <div class="sidebar-header border-bottom border-secondary p-3 d-flex align-items-center justify-content-between">
-        <h5 class="mb-0 sidebar-title">WhatsApp IT</h5>
+        <h5 class="mb-0 sidebar-title">WAIt</h5>
         <button class="btn btn-link text-white d-none d-lg-block p-0" id="sidebarToggle" type="button">
             <i class="bi bi-list fs-4"></i>
         </button>

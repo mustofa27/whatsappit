@@ -61,11 +61,16 @@ class MetaWhatsappService
     {
         try {
             // Check if code matches and not expired (5 minutes)
-            if ($account->verification_code !== $code) {
+            $inputCode = trim($code);
+            $storedCode = $account->verification_code !== null
+                ? (string) $account->verification_code
+                : null;
+
+            if ($storedCode === null || $storedCode !== $inputCode) {
                 throw new \Exception('Invalid verification code');
             }
 
-            if ($account->verification_code_sent_at->addMinutes(5)->isPast()) {
+            if (!$account->verification_code_sent_at || $account->verification_code_sent_at->addMinutes(5)->isPast()) {
                 throw new \Exception('Verification code expired');
             }
 

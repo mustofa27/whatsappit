@@ -7,7 +7,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
-            <h2 class="mb-4">Welcome to WhatsApp IT</h2>
+            <h2 class="mb-4">Welcome to WAIt</h2>
         </div>
     </div>
 

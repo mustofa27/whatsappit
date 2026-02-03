@@ -5,7 +5,7 @@
 @section('content')
 <div class="card shadow">
     <div class="card-header bg-primary text-white text-center">
-        <h3 class="mb-0">Sign In to WhatsApp IT</h3>
+        <h3 class="mb-0">Sign In to WAIt</h3>
     </div>
 
     <div class="card-body p-4">
