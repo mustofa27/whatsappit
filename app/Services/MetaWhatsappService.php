@@ -118,7 +118,7 @@ class MetaWhatsappService
             $messageData = [
                 'messaging_product' => 'whatsapp',
                 'recipient_type' => 'individual',
-                'to' => $this->formatPhoneNumber($message->recipient_number),
+                'to' => $this->formatPhoneNumber($message->receiver_number),
             ];
 
             $templateName = config('services.meta_whatsapp.default_template_name');
