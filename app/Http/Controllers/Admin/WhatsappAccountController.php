@@ -34,6 +34,9 @@ class WhatsappAccountController extends Controller
         $validated = $request->validate([
             'phone_number' => 'required|string|unique:whatsapp_accounts,phone_number',
             'name' => 'required|string|max:255',
+            'phone_number_id' => 'required|string',
+            'waba_id' => 'required|string',
+            'access_token' => 'required|string',
         ]);
 
         // Auto-set user_id from logged in user
@@ -44,11 +47,6 @@ class WhatsappAccountController extends Controller
         $validated['sender_secret'] = 'ss_' . Str::random(40);
         $validated['status'] = 'pending';
         $validated['provider'] = 'meta';
-        
-        // Set default Meta credentials from config if available
-        $validated['phone_number_id'] = config('services.meta_whatsapp.default_phone_number_id');
-        $validated['waba_id'] = config('services.meta_whatsapp.default_waba_id');
-        $validated['access_token'] = config('services.meta_whatsapp.default_access_token');
 
         $account = WhatsappAccount::create($validated);
 
@@ -74,6 +72,9 @@ class WhatsappAccountController extends Controller
             'phone_number' => 'required|string|unique:whatsapp_accounts,phone_number,' . $account->id,
             'name' => 'required|string|max:255',
             'status' => 'required|in:connected,disconnected,connecting',
+            'phone_number_id' => 'required|string',
+            'waba_id' => 'required|string',
+            'access_token' => 'required|string',
         ]);
 
         $account->update($validated);

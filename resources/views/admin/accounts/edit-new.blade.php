@@ -53,6 +53,64 @@
                             @enderror
                         </div>
 
+                        <hr class="my-4">
+                        <h6 class="mb-3">Meta WhatsApp API Credentials</h6>
+
+                        <div class="mb-3">
+                            <label for="phone_number_id" class="form-label">Phone Number ID <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('phone_number_id') is-invalid @enderror" 
+                                   id="phone_number_id" name="phone_number_id" value="{{ old('phone_number_id', $account->phone_number_id) }}" 
+                                   required placeholder="980422438489752">
+                            <div class="form-text">Found in Meta WhatsApp API Setup page</div>
+                            @error('phone_number_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="waba_id" class="form-label">WABA ID <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('waba_id') is-invalid @enderror" 
+                                   id="waba_id" name="waba_id" value="{{ old('waba_id', $account->waba_id) }}" 
+                                   required placeholder="114567812345678">
+                            <div class="form-text">WhatsApp Business Account ID from Meta</div>
+                            @error('waba_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="access_token" class="form-label">Access Token <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="password" class="form-control @error('access_token') is-invalid @enderror" 
+                                       id="access_token" name="access_token" value="{{ old('access_token', $account->access_token) }}" 
+                                       required>
+                                <button class="btn btn-outline-secondary" type="button" id="toggleAccessToken">
+                                    <i class="bi bi-eye" id="toggleIcon"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Meta API access token (from Getting Started page)</div>
+                            @error('access_token')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <script>
+                            document.getElementById('toggleAccessToken').addEventListener('click', function() {
+                                const input = document.getElementById('access_token');
+                                const icon = document.getElementById('toggleIcon');
+                                
+                                if (input.type === 'password') {
+                                    input.type = 'text';
+                                    icon.classList.remove('bi-eye');
+                                    icon.classList.add('bi-eye-slash');
+                                } else {
+                                    input.type = 'password';
+                                    icon.classList.remove('bi-eye-slash');
+                                    icon.classList.add('bi-eye');
+                                }
+                            });
+                        </script>
+
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-check-circle me-2"></i> Update Account
