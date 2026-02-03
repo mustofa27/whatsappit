@@ -121,9 +121,34 @@ class MetaWhatsappService
                 'to' => $this->formatPhoneNumber($message->recipient_number),
             ];
 
+            $templateName = config('services.meta_whatsapp.default_template_name');
+            $templateLanguage = config('services.meta_whatsapp.default_template_language', 'en_US');
+
             // Check if this is a new conversation (requires template)
-            // For now, we'll use text messages (assumes conversation already started)
-            if ($message->media_url) {
+            // Use template if configured, otherwise fallback to text/media
+            if ($templateName) {
+                $messageData['type'] = 'template';
+                $messageData['template'] = [
+                    'name' => $templateName,
+                    'language' => [
+                        'code' => $templateLanguage,
+                    ],
+                ];
+
+                if ($message->message) {
+                    $messageData['template']['components'] = [
+                        [
+                            'type' => 'body',
+                            'parameters' => [
+                                [
+                                    'type' => 'text',
+                                    'text' => $message->message,
+                                ],
+                            ],
+                        ],
+                    ];
+                }
+            } elseif ($message->media_url) {
                 // Send media message
                 $messageData['type'] = $message->media_type ?? 'image';
                 $messageData[$messageData['type']] = [
