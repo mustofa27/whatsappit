@@ -12,17 +12,26 @@ class WhatsappMessage extends Model
 
     protected $fillable = [
         'whatsapp_account_id',
-        'recipient_number',
+        'direction',
+        'contact_number',
+        'sender_number',
+        'receiver_number',
         'message',
         'status',
+        'message_type',
         'media_url',
         'media_type',
         'error_message',
+        'external_id',
         'sent_at',
+        'received_at',
+        'metadata',
     ];
 
     protected $casts = [
         'sent_at' => 'datetime',
+        'received_at' => 'datetime',
+        'metadata' => 'json',
     ];
 
     /**
@@ -31,6 +40,22 @@ class WhatsappMessage extends Model
     public function whatsappAccount(): BelongsTo
     {
         return $this->belongsTo(WhatsappAccount::class);
+    }
+
+    /**
+     * Check if message is incoming.
+     */
+    public function isIncoming(): bool
+    {
+        return $this->direction === 'incoming';
+    }
+
+    /**
+     * Check if message is outgoing.
+     */
+    public function isOutgoing(): bool
+    {
+        return $this->direction === 'outgoing';
     }
 
     /**

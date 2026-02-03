@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use App\Events\IncomingWhatsappMessage;
+use App\Listeners\UpdateConversationOnIncomingMessage;
 use App\Services\MetaWhatsappService;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +27,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register event listeners
+        Event::listen(
+            IncomingWhatsappMessage::class,
+            UpdateConversationOnIncomingMessage::class,
+        );
+
         // WhatsApp Send Message Rate Limiting
         // 20 requests per minute per sender_key to prevent spam
         RateLimiter::for('whatsapp-send', function ($request) {

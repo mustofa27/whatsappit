@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\WhatsappAccountController;
 use App\Http\Controllers\Admin\MessageController;
+use App\Http\Controllers\Admin\ConversationController;
 use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,4 +33,12 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     // Messages
     Route::get('messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('messages/{message}', [MessageController::class, 'show'])->name('messages.show');
+    
+    // Conversations (Feature #1)
+    Route::get('conversations', [ConversationController::class, 'index'])->name('conversations.index');
+    Route::get('conversations/{contact_number}', [ConversationController::class, 'show'])->name('conversations.show');
+    Route::post('conversations/{contact_number}/mark-as-read', [ConversationController::class, 'markAsRead'])->name('conversations.mark-as-read');
+    Route::post('conversations/{contact_number}/archive', [ConversationController::class, 'archive'])->name('conversations.archive');
+    Route::post('conversations/{contact_number}/unarchive', [ConversationController::class, 'unarchive'])->name('conversations.unarchive');
+    Route::post('conversations/{contact_number}/send', [ConversationController::class, 'send'])->name('conversations.send');
 });

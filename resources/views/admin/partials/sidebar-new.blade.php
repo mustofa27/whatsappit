@@ -23,6 +23,11 @@
                 <i class="bi bi-envelope fs-5"></i>
                 <span class="sidebar-text ms-3">Messages</span>
             </a>
+
+            <a href="{{ route('admin.conversations.index') }}" class="nav-link text-white {{ request()->routeIs('admin.conversations.*') ? 'bg-primary' : '' }}" title="Conversations">
+                <i class="bi bi-chat-dots fs-5"></i>
+                <span class="sidebar-text ms-3">Conversations</span>
+            </a>
         </nav>
     </div>
 </div>

@@ -98,8 +98,12 @@ class WhatsappController extends Controller
         // Create message record
         $message = WhatsappMessage::create([
             'whatsapp_account_id' => $account->id,
-            'recipient_number' => $request->to,
+            'direction' => 'outgoing',
+            'contact_number' => $request->to,
+            'sender_number' => $account->phone_number,
+            'receiver_number' => $request->to,
             'message' => $request->message ?? '',
+            'message_type' => $mediaType ? 'image' : 'text',
             'media_url' => $mediaUrl,
             'media_type' => $mediaType,
             'status' => 'pending',
@@ -125,7 +129,7 @@ class WhatsappController extends Controller
                 'message' => 'Message sent successfully',
                 'data' => [
                     'message_id' => $message->id,
-                    'to' => $message->recipient_number,
+                    'to' => $message->contact_number,
                     'status' => $message->status,
                     'sent_at' => $message->sent_at,
                 ],

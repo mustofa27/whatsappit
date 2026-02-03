@@ -247,6 +247,11 @@ class MetaWhatsappService
      */
     protected function handleMessageWebhook(array $value): void
     {
+        // Handle incoming messages
+        if (isset($value['messages'])) {
+            $this->processIncomingMessages($value['messages'], $value);
+        }
+
         // Handle status updates
         if (isset($value['statuses'])) {
             foreach ($value['statuses'] as $status) {
@@ -254,20 +259,157 @@ class MetaWhatsappService
                 
                 if ($message) {
                     $newStatus = match($status['status']) {
-                        'delivered' => 'sent',
-                        'read' => 'sent',
+                        'delivered' => 'delivered',
+                        'read' => 'read',
                         'failed' => 'failed',
                         default => $message->status,
                     };
                     
                     $message->update(['status' => $newStatus]);
+                    
+                    Log::info('Message status updated', [
+                        'message_id' => $message->id,
+                        'status' => $newStatus,
+                        'wamid' => $status['id'],
+                    ]);
                 }
             }
         }
+    }
 
-        // Handle incoming messages (optional)
-        if (isset($value['messages'])) {
-            Log::info('Incoming message received', $value['messages']);
+    /**
+     * Process incoming messages from webhook
+     */
+    protected function processIncomingMessages(array $messages, array $webhookData): void
+    {
+        foreach ($messages as $msgData) {
+            try {
+                // Get sender phone number
+                $senderNumber = $webhookData['contacts'][0]['wa_id'] ?? null;
+                if (!$senderNumber) {
+                    Log::warning('Incoming message missing sender number', $msgData);
+                    continue;
+                }
+
+                // Get account by phone number ID (from webhook context)
+                $phoneNumberId = $webhookData['metadata']['phone_number_id'] ?? null;
+                $account = WhatsappAccount::where('phone_number_id', $phoneNumberId)->first();
+                
+                if (!$account) {
+                    Log::warning('No WhatsApp account found for phone_number_id', [
+                        'phone_number_id' => $phoneNumberId,
+                    ]);
+                    continue;
+                }
+
+                // Parse message content based on type
+                $messageContent = '';
+                $messageType = $msgData['type'] ?? 'text';
+                $mediaUrl = null;
+                $mediaType = null;
+                $metadata = [];
+
+                switch ($messageType) {
+                    case 'text':
+                        $messageContent = $msgData['text']['body'] ?? '';
+                        break;
+                    case 'image':
+                        $mediaData = $msgData['image'] ?? [];
+                        $mediaUrl = $mediaData['link'] ?? null;
+                        $mediaType = 'image';
+                        $messageContent = $mediaData['caption'] ?? '';
+                        $metadata = [
+                            'media_id' => $mediaData['id'] ?? null,
+                            'mime_type' => $mediaData['mime_type'] ?? null,
+                        ];
+                        break;
+                    case 'document':
+                        $mediaData = $msgData['document'] ?? [];
+                        $mediaUrl = $mediaData['link'] ?? null;
+                        $mediaType = 'document';
+                        $messageContent = $mediaData['filename'] ?? '';
+                        $metadata = [
+                            'media_id' => $mediaData['id'] ?? null,
+                            'mime_type' => $mediaData['mime_type'] ?? null,
+                        ];
+                        break;
+                    case 'audio':
+                        $mediaData = $msgData['audio'] ?? [];
+                        $mediaUrl = $mediaData['link'] ?? null;
+                        $mediaType = 'audio';
+                        $metadata = [
+                            'media_id' => $mediaData['id'] ?? null,
+                            'mime_type' => $mediaData['mime_type'] ?? null,
+                        ];
+                        break;
+                    case 'video':
+                        $mediaData = $msgData['video'] ?? [];
+                        $mediaUrl = $mediaData['link'] ?? null;
+                        $mediaType = 'video';
+                        $messageContent = $mediaData['caption'] ?? '';
+                        $metadata = [
+                            'media_id' => $mediaData['id'] ?? null,
+                            'mime_type' => $mediaData['mime_type'] ?? null,
+                        ];
+                        break;
+                    case 'location':
+                        $locationData = $msgData['location'] ?? [];
+                        $messageContent = sprintf(
+                            'Location: %s, %s',
+                            $locationData['latitude'] ?? 'N/A',
+                            $locationData['longitude'] ?? 'N/A'
+                        );
+                        $metadata = $locationData;
+                        break;
+                    case 'button':
+                    case 'list':
+                    case 'interactive':
+                        // Handle interactive message responses
+                        if (isset($msgData['interactive']['button_reply'])) {
+                            $messageContent = $msgData['interactive']['button_reply']['title'] ?? '';
+                        } elseif (isset($msgData['interactive']['list_reply'])) {
+                            $messageContent = $msgData['interactive']['list_reply']['title'] ?? '';
+                        }
+                        $metadata = $msgData['interactive'] ?? [];
+                        break;
+                    default:
+                        $messageContent = json_encode($msgData);
+                        break;
+                }
+
+                // Create incoming message record
+                $message = WhatsappMessage::create([
+                    'whatsapp_account_id' => $account->id,
+                    'direction' => 'incoming',
+                    'contact_number' => $senderNumber,
+                    'sender_number' => $senderNumber,
+                    'receiver_number' => $account->phone_number,
+                    'message' => $messageContent,
+                    'status' => 'delivered', // Incoming messages are already delivered
+                    'message_type' => $messageType,
+                    'media_url' => $mediaUrl,
+                    'media_type' => $mediaType,
+                    'external_id' => $msgData['id'] ?? null,
+                    'received_at' => now(),
+                    'metadata' => $metadata,
+                ]);
+
+                Log::info('Incoming message stored', [
+                    'message_id' => $message->id,
+                    'sender' => $senderNumber,
+                    'type' => $messageType,
+                    'external_id' => $msgData['id'] ?? null,
+                ]);
+
+                // Trigger event or webhook for other systems
+                event(new \App\Events\IncomingWhatsappMessage($message));
+
+            } catch (\Exception $e) {
+                Log::error('Failed to process incoming message', [
+                    'error' => $e->getMessage(),
+                    'message' => $msgData,
+                ]);
+            }
         }
     }
 
