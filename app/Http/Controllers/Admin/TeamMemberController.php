@@ -180,7 +180,7 @@ class TeamMemberController extends Controller
         // Accept the invitation
         $teamMember->accept();
 
-        return redirect('/dashboard')->with('success', 'You have been added to the team!');
+        return redirect(route('admin.dashboard'))->with('success', 'You have been added to the team!');
     }
 
     /**
@@ -199,7 +199,7 @@ class TeamMemberController extends Controller
 
         $teamMember->reject();
 
-        return redirect('/dashboard')->with('success', 'You have rejected the team invitation.');
+        return redirect(route('admin.dashboard'))->with('success', 'You have rejected the team invitation.');
     }
 
     /**

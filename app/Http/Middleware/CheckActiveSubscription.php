@@ -20,12 +20,31 @@ class CheckActiveSubscription
         }
 
         // Check if user has active subscription
-        if (!$user || !$user->hasActiveSubscription()) {
-            // Redirect to subscription page with message
-            return redirect()->route('subscription.index')
-                ->with('warning', 'You need an active subscription to access this feature.');
+        if ($user && $user->hasActiveSubscription()) {
+            return $next($request);
         }
 
-        return $next($request);
+        // Check if user is a team member of someone with an active subscription
+        if ($user) {
+            $activeTeamOwner = $user->memberOfTeams()
+                ->where('status', 'active')
+                ->with('owner')
+                ->get()
+                ->first(function ($teamMember) {
+                    return $teamMember->owner->hasActiveSubscription();
+                });
+
+            if ($activeTeamOwner) {
+                return $next($request);
+            }
+        }
+
+        // No valid subscription or team membership found
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        return redirect()->route('subscription.index')
+            ->with('warning', 'You need an active subscription or to be invited to a team with an active subscription to access this feature.');
     }
 }
