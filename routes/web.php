@@ -113,8 +113,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.subscription'
 // Team Members
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.subscription'])->group(function () {
     Route::resource('team-members', \App\Http\Controllers\Admin\TeamMemberController::class);
+    // Pending invitations dashboard for logged-in user
+    Route::get('pending-invitations', [\App\Http\Controllers\Admin\TeamMemberController::class, 'pendingInvitations'])->name('pending-invitations');
 });
 
 // Team Member Invitation Routes (Public)
-Route::get('/team-invite/{token}/accept', [\App\Http\Controllers\Admin\TeamMemberController::class, 'acceptInvitation'])->middleware('auth')->name('team-members.accept');
-Route::get('/team-invite/{token}/reject', [\App\Http\Controllers\Admin\TeamMemberController::class, 'rejectInvitation'])->middleware('auth')->name('team-members.reject');
+Route::post('/team-invite/{token}/accept', [\App\Http\Controllers\Admin\TeamMemberController::class, 'acceptInvitation'])->middleware('auth')->name('team-members.accept');
+Route::post('/team-invite/{token}/reject', [\App\Http\Controllers\Admin\TeamMemberController::class, 'rejectInvitation'])->middleware('auth')->name('team-members.reject');

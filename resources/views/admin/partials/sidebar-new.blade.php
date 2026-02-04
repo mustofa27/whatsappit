@@ -49,6 +49,11 @@
                 <span class="sidebar-text ms-3">Team Members</span>
             </a>
 
+            <a href="{{ route('admin.pending-invitations') }}" class="nav-link text-white {{ request()->routeIs('admin.pending-invitations') ? 'bg-primary' : '' }}" title="Pending Invitations">
+                <i class="bi bi-inbox fs-5"></i>
+                <span class="sidebar-text ms-3">Pending Invitations</span>
+            </a>
+
             <a href="{{ route('subscription.show') }}" class="nav-link text-white {{ request()->routeIs('subscription.*') ? 'bg-primary' : '' }}" title="My Subscription">
                 <i class="bi bi-box-seam fs-5"></i>
                 <span class="sidebar-text ms-3">My Subscription</span>

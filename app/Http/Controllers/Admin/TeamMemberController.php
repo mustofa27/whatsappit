@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\TeamMember;
 use App\Models\User;
+use App\Mail\TeamInvitationMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
@@ -94,14 +95,16 @@ class TeamMemberController extends Controller
                 'invite_expires_at' => now()->addDays(7),
             ]);
 
-            // TODO: Send invitation email
-            // Mail::send('emails.team-invite', [
-            //     'user' => $user,
-            //     'invitedUser' => $invitedUser,
-            //     'inviteUrl' => route('team-members.accept', ['token' => $inviteToken]),
-            // ], function ($mail) use ($invitedUser) {
-            //     $mail->to($invitedUser->email);
-            // });
+            // Send invitation email
+            $acceptUrl = route('team-members.accept', ['token' => $inviteToken]);
+            $rejectUrl = route('team-members.reject', ['token' => $inviteToken]);
+            
+            Mail::to($invitedUser->email)->send(new TeamInvitationMail(
+                $teamMember,
+                $user,
+                $acceptUrl,
+                $rejectUrl
+            ));
 
             Log::info('Team member invited', [
                 'team_owner_id' => $user->id,
@@ -109,7 +112,7 @@ class TeamMemberController extends Controller
                 'role' => $validated['role'],
             ]);
 
-            return back()->with('success', "Invitation sent to {$validated['email']}");
+            return back()->with('success', "Invitation sent to {$validated['email']} and email notification has been sent.");
         } catch (\Exception $e) {
             Log::error('Failed to invite team member', [
                 'error' => $e->getMessage(),
@@ -197,5 +200,23 @@ class TeamMemberController extends Controller
         $teamMember->reject();
 
         return redirect('/dashboard')->with('success', 'You have rejected the team invitation.');
+    }
+
+    /**
+     * Show pending invitations for logged-in user
+     */
+    public function pendingInvitations()
+    {
+        $user = auth()->user();
+        
+        // Get all pending invitations for the user (where they are invited)
+        $pendingInvitations = TeamMember::where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->with('owner') // Load the team owner relationship
+            ->paginate(10);
+
+        return view('admin.pending-invitations', [
+            'pendingInvitations' => $pendingInvitations,
+        ]);
     }
 }
