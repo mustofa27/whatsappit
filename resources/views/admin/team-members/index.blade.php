@@ -124,27 +124,35 @@
                             <td class="align-middle">{{ $member->user->name }}</td>
                             <td class="align-middle">{{ $member->user->email }}</td>
                             <td class="align-middle">
-                                <form action="{{ route('admin.team-members.update', $member) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    @method('PUT')
-                                    <select name="role" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
-                                        <option value="admin" @if($member->role === 'admin') selected @endif>Admin</option>
-                                        <option value="operator" @if($member->role === 'operator') selected @endif>Operator</option>
-                                        <option value="viewer" @if($member->role === 'viewer') selected @endif>Viewer</option>
-                                    </select>
-                                </form>
+                                @if($canManageTeamMembers)
+                                    <form action="{{ route('admin.team-members.update', $member) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        @method('PUT')
+                                        <select name="role" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                                            <option value="admin" @if($member->role === 'admin') selected @endif>Admin</option>
+                                            <option value="operator" @if($member->role === 'operator') selected @endif>Operator</option>
+                                            <option value="viewer" @if($member->role === 'viewer') selected @endif>Viewer</option>
+                                        </select>
+                                    </form>
+                                @else
+                                    <span class="badge bg-secondary">{{ ucfirst($member->role) }}</span>
+                                @endif
                             </td>
                             <td class="align-middle">
                                 {{ $member->accepted_at->diffForHumans() }}
                             </td>
                             <td class="align-middle text-end">
-                                <form action="{{ route('admin.team-members.destroy', $member) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this member?')">
-                                        <i class="bi bi-trash"></i> Remove
-                                    </button>
-                                </form>
+                                @if($canManageTeamMembers)
+                                    <form action="{{ route('admin.team-members.destroy', $member) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this member?')">
+                                            <i class="bi bi-trash"></i> Remove
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="text-muted small">No actions</span>
+                                @endif
                             </td>
                         </tr>
                         @empty
