@@ -12,16 +12,26 @@
                 {{ $memberCount }} of {{ $maxMembers - 1 }} team members
             </small>
         </div>
-        @if($canAddMember)
-            <a href="{{ route('admin.team-members.create') }}" class="btn btn-primary">
-                <i class="bi bi-person-plus me-2"></i> Invite Member
-            </a>
-        @else
-            <button class="btn btn-secondary" disabled title="Team member limit reached">
-                <i class="bi bi-person-plus me-2"></i> Invite Member
-            </button>
+        @if($canManageTeamMembers)
+            @if($canAddMember)
+                <a href="{{ route('admin.team-members.create') }}" class="btn btn-primary">
+                    <i class="bi bi-person-plus me-2"></i> Invite Member
+                </a>
+            @else
+                <button class="btn btn-secondary" disabled title="Team member limit reached">
+                    <i class="bi bi-person-plus me-2"></i> Invite Member
+                </button>
+            @endif
         @endif
     </div>
+
+    @if(!$canManageTeamMembers)
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="bi bi-info-circle me-2"></i>
+            Only the team owner can invite, cancel, or manage members.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
     @if(!$canAddMember)
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -69,13 +79,17 @@
                                     @endif
                                 </td>
                                 <td class="align-middle text-end">
-                                    <form action="{{ route('admin.team-members.destroy', $invitation) }}" method="POST" style="display: inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel this invitation?')">
-                                            <i class="bi bi-trash"></i> Cancel
-                                        </button>
-                                    </form>
+                                    @if($canManageTeamMembers)
+                                        <form action="{{ route('admin.team-members.destroy', $invitation) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel this invitation?')">
+                                                <i class="bi bi-trash"></i> Cancel
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-muted small">No actions</span>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach

@@ -20,6 +20,7 @@ class TeamMemberController extends Controller
     {
         $currentUser = auth()->user();
         $owner = $currentUser->getEffectiveOwner();
+        $canManageTeamMembers = $currentUser->id === $owner->id;
         
         $activeMembers = $owner->activeTeamMembers()->paginate(10);
         $pendingInvitations = $owner->pendingInvitations()->paginate(10);
@@ -31,6 +32,7 @@ class TeamMemberController extends Controller
             'memberCount' => $owner->getTeamMemberCount(),
             'remainingSlots' => $owner->getRemainingTeamSlots(),
             'canAddMember' => $owner->canAddTeamMember(),
+            'canManageTeamMembers' => $canManageTeamMembers,
         ]);
     }
 
@@ -41,6 +43,10 @@ class TeamMemberController extends Controller
     {
         $currentUser = auth()->user();
         $owner = $currentUser->getEffectiveOwner();
+
+        if ($currentUser->id !== $owner->id) {
+            abort(403, 'Unauthorized');
+        }
         
         if (!$owner->canAddTeamMember()) {
             return back()->with('error', "You've reached your team member limit. Upgrade your subscription to add more members.");
@@ -60,6 +66,10 @@ class TeamMemberController extends Controller
     {
         $currentUser = auth()->user();
         $owner = $currentUser->getEffectiveOwner();
+
+        if ($currentUser->id !== $owner->id) {
+            abort(403, 'Unauthorized');
+        }
 
         // Check if can add more members
         if (!$owner->canAddTeamMember()) {
@@ -134,7 +144,7 @@ class TeamMemberController extends Controller
     {
         // Check authorization - only the actual team owner can manage members
         $currentUser = auth()->user();
-        if ($teamMember->team_owner_id !== $currentUser->getEffectiveOwner()->id) {
+        if ($currentUser->id !== $currentUser->getEffectiveOwner()->id || $teamMember->team_owner_id !== $currentUser->id) {
             abort(403, 'Unauthorized');
         }
 
@@ -154,7 +164,7 @@ class TeamMemberController extends Controller
     {
         // Check authorization - only the actual team owner can manage members
         $currentUser = auth()->user();
-        if ($teamMember->team_owner_id !== $currentUser->getEffectiveOwner()->id) {
+        if ($currentUser->id !== $currentUser->getEffectiveOwner()->id || $teamMember->team_owner_id !== $currentUser->id) {
             abort(403, 'Unauthorized');
         }
 
