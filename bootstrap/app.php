@@ -13,8 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->validateCsrfTokens(except: [
-            'webhook/xendit',
-            'webhook/meta',
+            'webhook/*',
         ]);
         
         $middleware->alias([
