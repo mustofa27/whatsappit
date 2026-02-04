@@ -15,7 +15,9 @@ class AnalyticsController extends Controller
 {
     public function index(Request $request): View
     {
-        $userId = auth()->id();
+        $currentUser = auth()->user();
+        $owner = $currentUser->getEffectiveOwner();
+        $userId = $owner->id;
 
         $accounts = WhatsappAccount::where('user_id', $userId)->get();
         $accountId = $request->input('account_id');
