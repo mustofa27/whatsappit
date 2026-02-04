@@ -18,17 +18,19 @@ class TeamMemberController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
-        $activeMembers = $user->activeTeamMembers()->paginate(10);
-        $pendingInvitations = $user->pendingInvitations()->paginate(10);
+        $currentUser = auth()->user();
+        $owner = $currentUser->getEffectiveOwner();
+        
+        $activeMembers = $owner->activeTeamMembers()->paginate(10);
+        $pendingInvitations = $owner->pendingInvitations()->paginate(10);
 
         return view('admin.team-members.index', [
             'activeMembers' => $activeMembers,
             'pendingInvitations' => $pendingInvitations,
-            'maxMembers' => $user->getMaxTeamMembers(),
-            'memberCount' => $user->getTeamMemberCount(),
-            'remainingSlots' => $user->getRemainingTeamSlots(),
-            'canAddMember' => $user->canAddTeamMember(),
+            'maxMembers' => $owner->getMaxTeamMembers(),
+            'memberCount' => $owner->getTeamMemberCount(),
+            'remainingSlots' => $owner->getRemainingTeamSlots(),
+            'canAddMember' => $owner->canAddTeamMember(),
         ]);
     }
 
@@ -37,16 +39,17 @@ class TeamMemberController extends Controller
      */
     public function create()
     {
-        $user = auth()->user();
+        $currentUser = auth()->user();
+        $owner = $currentUser->getEffectiveOwner();
         
-        if (!$user->canAddTeamMember()) {
+        if (!$owner->canAddTeamMember()) {
             return back()->with('error', "You've reached your team member limit. Upgrade your subscription to add more members.");
         }
 
         return view('admin.team-members.invite', [
-            'maxMembers' => $user->getMaxTeamMembers(),
-            'memberCount' => $user->getTeamMemberCount(),
-            'remainingSlots' => $user->getRemainingTeamSlots(),
+            'maxMembers' => $owner->getMaxTeamMembers(),
+            'memberCount' => $owner->getTeamMemberCount(),
+            'remainingSlots' => $owner->getRemainingTeamSlots(),
         ]);
     }
 
@@ -55,11 +58,12 @@ class TeamMemberController extends Controller
      */
     public function store(Request $request)
     {
-        $user = auth()->user();
+        $currentUser = auth()->user();
+        $owner = $currentUser->getEffectiveOwner();
 
         // Check if can add more members
-        if (!$user->canAddTeamMember()) {
-            return back()->with('error', "You've reached your team member limit ({$user->getMaxTeamMembers()}). Upgrade your subscription to add more members.");
+        if (!$owner->canAddTeamMember()) {
+            return back()->with('error', "You've reached your team member limit ({$owner->getMaxTeamMembers()}). Upgrade your subscription to add more members.");
         }
 
         $validated = $request->validate([
@@ -76,7 +80,7 @@ class TeamMemberController extends Controller
             }
 
             // Check if invitation already exists
-            $existing = TeamMember::where('team_owner_id', $user->id)
+            $existing = TeamMember::where('team_owner_id', $owner->id)
                 ->where('user_id', $invitedUser->id)
                 ->first();
 
@@ -87,7 +91,7 @@ class TeamMemberController extends Controller
             // Create team member invitation
             $inviteToken = Str::random(64);
             $teamMember = TeamMember::create([
-                'team_owner_id' => $user->id,
+                'team_owner_id' => $owner->id,
                 'user_id' => $invitedUser->id,
                 'role' => $validated['role'],
                 'status' => 'pending',
@@ -101,7 +105,7 @@ class TeamMemberController extends Controller
             
             Mail::to($invitedUser->email)->send(new TeamInvitationMail(
                 $teamMember,
-                $user,
+                $owner,
                 $acceptUrl,
                 $rejectUrl
             ));
@@ -128,8 +132,9 @@ class TeamMemberController extends Controller
      */
     public function update(Request $request, TeamMember $teamMember)
     {
-        // Check authorization
-        if ($teamMember->team_owner_id !== auth()->id()) {
+        // Check authorization - only the actual team owner can manage members
+        $currentUser = auth()->user();
+        if ($teamMember->team_owner_id !== $currentUser->getEffectiveOwner()->id) {
             abort(403, 'Unauthorized');
         }
 
@@ -147,8 +152,9 @@ class TeamMemberController extends Controller
      */
     public function destroy(TeamMember $teamMember)
     {
-        // Check authorization
-        if ($teamMember->team_owner_id !== auth()->id()) {
+        // Check authorization - only the actual team owner can manage members
+        $currentUser = auth()->user();
+        if ($teamMember->team_owner_id !== $currentUser->getEffectiveOwner()->id) {
             abort(403, 'Unauthorized');
         }
 
