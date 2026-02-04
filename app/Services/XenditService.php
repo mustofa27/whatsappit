@@ -169,9 +169,14 @@ class XenditService
             }
 
             if (!$payment) {
-                Log::warning('Payment not found', [
-                    'external_id' => $externalId,
-                    'invoice_id' => $invoiceId,
+                // Debug: Log all payments in database
+                $allPayments = SubscriptionPayment::limit(10)->get(['id', 'external_id', 'transaction_id', 'status'])->toArray();
+                
+                Log::error('Payment not found - debug info', [
+                    'searching_external_id' => $externalId,
+                    'searching_transaction_id' => $invoiceId,
+                    'all_payments_in_db' => $allPayments,
+                    'total_payments_count' => SubscriptionPayment::count(),
                 ]);
                 return false;
             }
