@@ -62,32 +62,26 @@ class TeamMemberController extends Controller
         }
 
         $validated = $request->validate([
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email',
             'role' => 'required|in:admin,operator,viewer',
         ]);
 
         try {
+            // Find user by email - must be already registered
+            $invitedUser = User::where('email', $validated['email'])->first();
+            
+            if (!$invitedUser) {
+                return back()->with('error', "User with email {$validated['email']} is not registered. They must create an account first.");
+            }
+
             // Check if invitation already exists
             $existing = TeamMember::where('team_owner_id', $user->id)
-                ->where('user_id', function ($query) use ($validated) {
-                    $query->select('id')
-                        ->from('users')
-                        ->where('email', $validated['email']);
-                })
+                ->where('user_id', $invitedUser->id)
                 ->first();
 
             if ($existing) {
                 return back()->with('error', 'This user is already invited to your team.');
             }
-
-            // Find or create user with the email
-            $invitedUser = User::firstOrCreate(
-                ['email' => $validated['email']],
-                [
-                    'name' => explode('@', $validated['email'])[0],
-                    'password' => bcrypt(Str::random(16)),
-                ]
-            );
 
             // Create team member invitation
             $inviteToken = Str::random(64);
