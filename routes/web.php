@@ -109,3 +109,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.subscription'
     // Subscription Plans
     Route::resource('subscription-plans', \App\Http\Controllers\Admin\SubscriptionPlanController::class);
     Route::patch('subscription-plans/{subscriptionPlan}/toggle-status', [\App\Http\Controllers\Admin\SubscriptionPlanController::class, 'toggleStatus'])->name('subscription-plans.toggle-status');});
+
+// Team Members
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.subscription'])->group(function () {
+    Route::resource('team-members', \App\Http\Controllers\Admin\TeamMemberController::class);
+});
+
+// Team Member Invitation Routes (Public)
+Route::get('/team-invite/{token}/accept', [\App\Http\Controllers\Admin\TeamMemberController::class, 'acceptInvitation'])->middleware('auth')->name('team-members.accept');
+Route::get('/team-invite/{token}/reject', [\App\Http\Controllers\Admin\TeamMemberController::class, 'rejectInvitation'])->middleware('auth')->name('team-members.reject');

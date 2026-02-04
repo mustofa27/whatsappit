@@ -103,7 +103,41 @@
         <form method="POST" action="{{ route('admin.accounts.store') }}" id="wizardForm">
             @csrf
 
-            <!-- Step 1: Meta Setup Instructions -->
+            @if(!auth()->user()->canCreateWhatsappAccount())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Account Limit Reached</strong> - You've reached your WhatsApp account limit ({{ auth()->user()->getMaxWhatsappAccounts() }}).
+                    <a href="{{ route('subscription.index') }}" class="alert-link">Upgrade your subscription</a> to add more accounts.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-lock-fill" style="font-size: 3rem; color: #dc3545;"></i>
+                        <h5 class="mt-3 mb-2">Account Creation Disabled</h5>
+                        <p class="text-muted mb-3">You've reached your maximum number of WhatsApp accounts.</p>
+                        <p class="mb-4">
+                            <strong>Current Usage:</strong> {{ auth()->user()->getWhatsappAccountCount() }} of {{ auth()->user()->getMaxWhatsappAccounts() }} accounts
+                        </p>
+                        <a href="{{ route('subscription.index') }}" class="btn btn-primary">
+                            <i class="bi bi-arrow-up me-2"></i> Upgrade Subscription
+                        </a>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <a href="{{ route('admin.accounts.index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Accounts
+                    </a>
+                </div>
+            @else
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Account Usage: {{ auth()->user()->getWhatsappAccountCount() }} of {{ auth()->user()->getMaxWhatsappAccounts() }}
+                    @if(auth()->user()->getRemainingAccountSlots() > 0)
+                        <span class="ms-2">({{ auth()->user()->getRemainingAccountSlots() }} slot{{ auth()->user()->getRemainingAccountSlots() > 1 ? 's' : '' }} remaining)</span>
+                    @endif
+                </div>
             <div class="card shadow-sm mb-4 wizard-step" id="step-1" style="display: block;">
                 <div class="card-header bg-white border-bottom">
                     <h5 class="mb-0"><i class="bi bi-1-circle me-2"></i>Setup Meta WhatsApp Business Account</h5>
@@ -284,6 +318,7 @@
                 </div>
             </div>
         </form>
+        @endif
 
         <!-- Help Section -->
         <div class="card shadow-sm border-primary">

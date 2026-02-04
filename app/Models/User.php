@@ -71,4 +71,135 @@ class User extends Authenticatable
         $subscription = $this->activeSubscription;
         return $subscription ? $subscription->plan : null;
     }
+
+    public function whatsappAccounts()
+    {
+        return $this->hasMany(WhatsappAccount::class);
+    }
+
+    /**
+     * Get the maximum number of WhatsApp accounts allowed by current subscription
+     */
+    public function getMaxWhatsappAccounts(): int
+    {
+        $plan = $this->currentPlan();
+        
+        // Default to 1 account if no active subscription
+        if (!$plan) {
+            return 1;
+        }
+
+        return $plan->max_accounts ?? 1;
+    }
+
+    /**
+     * Get current count of WhatsApp accounts
+     */
+    public function getWhatsappAccountCount(): int
+    {
+        return $this->whatsappAccounts()->count();
+    }
+
+    /**
+     * Check if user can create more WhatsApp accounts
+     */
+    public function canCreateWhatsappAccount(): bool
+    {
+        return $this->getWhatsappAccountCount() < $this->getMaxWhatsappAccounts();
+    }
+
+    /**
+     * Get remaining account slots
+     */
+    public function getRemainingAccountSlots(): int
+    {
+        return max(0, $this->getMaxWhatsappAccounts() - $this->getWhatsappAccountCount());
+    }
+
+        /**
+         * Get the maximum number of team members allowed by current subscription
+         */
+        public function getMaxTeamMembers(): int
+        {
+            $plan = $this->currentPlan();
+        
+            // Default to 1 (just the owner) if no active subscription
+            if (!$plan) {
+                return 1;
+            }
+
+            return $plan->max_users ?? 1;
+        }
+
+        /**
+         * Get current count of active team members (excluding owner)
+         */
+        public function getTeamMemberCount(): int
+        {
+            return $this->teamMembers()
+                ->where('status', 'active')
+                ->count();
+        }
+
+        /**
+         * Check if user can add more team members
+         */
+        public function canAddTeamMember(): bool
+        {
+            // Count includes invited (pending) members too
+            $totalInvited = $this->teamMembers()
+                ->whereIn('status', ['active', 'pending'])
+                ->count();
+        
+            return $totalInvited < ($this->getMaxTeamMembers() - 1);
+        }
+
+        /**
+         * Get remaining team member slots
+         */
+        public function getRemainingTeamSlots(): int
+        {
+            $max = $this->getMaxTeamMembers() - 1; // -1 because owner takes one slot
+            $invited = $this->teamMembers()
+                ->whereIn('status', ['active', 'pending'])
+                ->count();
+        
+            return max(0, $max - $invited);
+        }
+
+        /**
+         * Get all team members (active and pending)
+         */
+        public function teamMembers()
+        {
+            return $this->hasMany(TeamMember::class, 'team_owner_id');
+        }
+
+        /**
+         * Get active team members
+         */
+        public function activeTeamMembers()
+        {
+            return $this->teamMembers()
+                ->where('status', 'active')
+                ->with('user');
+        }
+
+        /**
+         * Get pending invitations
+         */
+        public function pendingInvitations()
+        {
+            return $this->teamMembers()
+                ->where('status', 'pending')
+                ->with('user');
+        }
+
+        /**
+         * Get teams this user is member of
+         */
+        public function memberOfTeams()
+        {
+            return $this->hasMany(TeamMember::class, 'user_id');
+        }
 }

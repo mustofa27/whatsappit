@@ -32,6 +32,14 @@ class WhatsappAccountController extends Controller
 
     public function store(Request $request)
     {
+        // Check subscription account limit
+        $user = auth()->user();
+        
+        if (!$user->canCreateWhatsappAccount()) {
+            $maxAccounts = $user->getMaxWhatsappAccounts();
+            return back()->with('error', "You've reached your WhatsApp account limit ({$maxAccounts}). Please upgrade your subscription to add more accounts.");
+        }
+
         $validated = $request->validate([
             'phone_number' => 'required|string|unique:whatsapp_accounts,phone_number',
             'name' => 'required|string|max:255',

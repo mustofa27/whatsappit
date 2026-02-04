@@ -6,11 +6,31 @@
 @section('content')
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h3 mb-0">WhatsApp Accounts</h2>
-        <a href="{{ route('admin.accounts.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-2"></i> Add Account
-        </a>
+        <div>
+            <h2 class="h3 mb-0">WhatsApp Accounts</h2>
+            <small class="text-muted">
+                {{ auth()->user()->getWhatsappAccountCount() }} of {{ auth()->user()->getMaxWhatsappAccounts() }} accounts used
+            </small>
+        </div>
+        @if(auth()->user()->canCreateWhatsappAccount())
+            <a href="{{ route('admin.accounts.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i> Add Account
+            </a>
+        @else
+            <button class="btn btn-secondary" disabled title="Account limit reached">
+                <i class="bi bi-plus-circle me-2"></i> Add Account
+            </button>
+        @endif
     </div>
+
+    @if(!auth()->user()->canCreateWhatsappAccount())
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Account Limit Reached</strong> - You've reached your WhatsApp account limit ({{ auth()->user()->getMaxWhatsappAccounts() }}).
+            <a href="{{ route('subscription.index') }}" class="alert-link">Upgrade your subscription</a> to add more accounts.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
     <div class="card shadow-sm">
         <div class="card-header bg-white">

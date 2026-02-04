@@ -44,6 +44,11 @@
                 <span class="sidebar-text ms-3">Analytics</span>
             </a>
 
+            <a href="{{ route('admin.team-members.index') }}" class="nav-link text-white {{ request()->routeIs('admin.team-members.*') ? 'bg-primary' : '' }}" title="Team Members">
+                <i class="bi bi-people-fill fs-5"></i>
+                <span class="sidebar-text ms-3">Team Members</span>
+            </a>
+
             <a href="{{ route('subscription.show') }}" class="nav-link text-white {{ request()->routeIs('subscription.*') ? 'bg-primary' : '' }}" title="My Subscription">
                 <i class="bi bi-box-seam fs-5"></i>
                 <span class="sidebar-text ms-3">My Subscription</span>
