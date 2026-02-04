@@ -223,3 +223,4 @@ class User extends Authenticatable
             // Return self if no active team membership or owner has no subscription
             return $this;
         }
+}
