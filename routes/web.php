@@ -110,12 +110,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.subscription'
     Route::resource('subscription-plans', \App\Http\Controllers\Admin\SubscriptionPlanController::class);
     Route::patch('subscription-plans/{subscriptionPlan}/toggle-status', [\App\Http\Controllers\Admin\SubscriptionPlanController::class, 'toggleStatus'])->name('subscription-plans.toggle-status');});
 
-// Team Members
+// Team Members Management (requires subscription)
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.subscription'])->group(function () {
     Route::resource('team-members', \App\Http\Controllers\Admin\TeamMemberController::class);
-    // Pending invitations dashboard for logged-in user
-    Route::get('pending-invitations', [\App\Http\Controllers\Admin\TeamMemberController::class, 'pendingInvitations'])->name('pending-invitations');
 });
+
+// Pending Invitations (auth only, no subscription required for invited users)
+Route::get('/admin/pending-invitations', [\App\Http\Controllers\Admin\TeamMemberController::class, 'pendingInvitations'])->middleware('auth')->name('admin.pending-invitations');
 
 // Team Member Invitation Routes (Public)
 Route::post('/team-invite/{token}/accept', [\App\Http\Controllers\Admin\TeamMemberController::class, 'acceptInvitation'])->middleware('auth')->name('team-members.accept');
