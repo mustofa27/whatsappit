@@ -8,6 +8,16 @@ use Illuminate\Http\Request;
 
 class SubscriptionPlanController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (!auth()->user()->is_admin) {
+                abort(403, 'Unauthorized. Admin access required.');
+            }
+            return $next($request);
+        });
+    }
+
     public function index()
     {
         $plans = SubscriptionPlan::ordered()->get();

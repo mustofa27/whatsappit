@@ -44,6 +44,12 @@
                 <span class="sidebar-text ms-3">Analytics</span>
             </a>
 
+            <a href="{{ route('subscription.show') }}" class="nav-link text-white {{ request()->routeIs('subscription.*') ? 'bg-primary' : '' }}" title="My Subscription">
+                <i class="bi bi-box-seam fs-5"></i>
+                <span class="sidebar-text ms-3">My Subscription</span>
+            </a>
+
+            @if(auth()->user()->is_admin)
             <a href="{{ route('admin.settings.index') }}" class="nav-link text-white {{ request()->routeIs('admin.settings.*') ? 'bg-primary' : '' }}" title="Settings">
                 <i class="bi bi-gear fs-5"></i>
                 <span class="sidebar-text ms-3">Settings</span>
@@ -53,6 +59,7 @@
                 <i class="bi bi-credit-card fs-5"></i>
                 <span class="sidebar-text ms-3">Subscription Plans</span>
             </a>
+            @endif
         </nav>
     </div>
 </div>

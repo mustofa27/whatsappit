@@ -47,4 +47,28 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
         ];
     }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(UserSubscription::class)
+            ->where('status', 'active')
+            ->where('expires_at', '>', now())
+            ->latest();
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->activeSubscription()->exists();
+    }
+
+    public function currentPlan()
+    {
+        $subscription = $this->activeSubscription;
+        return $subscription ? $subscription->plan : null;
+    }
 }

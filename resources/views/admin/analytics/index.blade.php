@@ -122,19 +122,32 @@
         <div class="col-md-4">
             <div class="card shadow-sm">
                 <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0">Estimated Cost</h5>
+                    <h5 class="mb-0"><i class="bi bi-cash-stack me-2"></i>Cost Estimation</h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h6 class="text-muted mb-2">Outgoing x Cost</h6>
-                            <h3 class="mb-0">Rp {{ number_format($estimatedCost, 0, ',', '.') }}</h3>
+                    <div class="mb-3 p-3 bg-light rounded">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Outgoing Messages:</span>
+                            <span class="fw-bold">{{ $outgoingTotal }}</span>
                         </div>
-                        <div class="text-danger">
-                            <i class="bi bi-cash-stack fs-1"></i>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Cost per Message:</span>
+                            <span class="fw-bold">Rp {{ number_format($costPerMessage, 0, ',', '.') }}</span>
+                        </div>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Estimated Total:</span>
+                            <h5 class="mb-0 text-danger">Rp {{ number_format($estimatedCost, 0, ',', '.') }}</h5>
                         </div>
                     </div>
-                    <div class="mt-2 text-muted small">Rp {{ number_format($costPerMessage, 0, ',', '.') }} per outgoing message (estimate)</div>
+                    
+                    <div class="alert alert-info alert-sm mb-0" role="alert">
+                        <small>
+                            <i class="bi bi-info-circle me-1"></i>
+                            Based on outgoing messages only. Meta charges per billable conversation after free tier of 1,000.
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>

@@ -16,6 +16,9 @@ Route::get('/', function () {
 // Webhook for Meta WhatsApp
 Route::match(['get', 'post'], '/webhook/meta', [\App\Http\Controllers\WebhookController::class, 'verify'])->name('webhook.meta');
 
+// Xendit Payment Webhook
+Route::post('/webhook/xendit', [\App\Http\Controllers\XenditWebhookController::class, 'handle'])->name('webhook.xendit');
+
 // Pricing page
 Route::get('/pricing', [\App\Http\Controllers\PricingController::class, 'index'])->name('pricing');
 Route::post('/pricing/calculate', [\App\Http\Controllers\PricingController::class, 'calculator'])->name('pricing.calculate');
@@ -26,6 +29,16 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Subscription Routes (Protected)
+Route::middleware('auth')->prefix('subscription')->name('subscription.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\SubscriptionController::class, 'index'])->name('index');
+    Route::post('/subscribe/{plan}', [\App\Http\Controllers\SubscriptionController::class, 'subscribe'])->name('subscribe');
+    Route::get('/success', [\App\Http\Controllers\SubscriptionController::class, 'success'])->name('success');
+    Route::get('/failed', [\App\Http\Controllers\SubscriptionController::class, 'failed'])->name('failed');
+    Route::get('/my-subscription', [\App\Http\Controllers\SubscriptionController::class, 'show'])->name('show');
+    Route::post('/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancel'])->name('cancel');
+});
 
 // Admin Routes (Protected)
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {

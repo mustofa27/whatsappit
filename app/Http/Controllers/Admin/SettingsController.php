@@ -10,6 +10,16 @@ use Illuminate\View\View;
 
 class SettingsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (!auth()->user()->is_admin) {
+                abort(403, 'Unauthorized. Admin access required.');
+            }
+            return $next($request);
+        });
+    }
+
     public function index(): View
     {
         $settings = Setting::orderBy('group')->orderBy('key')->get()->groupBy('group');
