@@ -67,6 +67,10 @@
                             <i class="bi bi-pencil me-2"></i> Edit
                         </a>
                         
+                        <a href="{{ route('admin.accounts.webhook-setup', $account) }}" class="btn btn-info">
+                            <i class="bi bi-link me-2"></i> Webhook Setup
+                        </a>
+                        
                         @if(!$account->is_verified)
                         <a href="{{ route('admin.accounts.verify', $account) }}" class="btn btn-success">
                             <i class="bi bi-check-circle me-2"></i> Verify Phone Number

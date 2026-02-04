@@ -263,6 +263,9 @@
                         <a class="nav-link" href="#features">Features</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('pricing') }}">Pricing</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#how-it-works">How It Works</a>
                     </li>
                     @auth

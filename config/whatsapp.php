@@ -43,4 +43,17 @@ return [
         // Alert when approaching limits
         'alert_threshold' => 80, // percentage
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cost Tracking (Estimates)
+    |--------------------------------------------------------------------------
+    |
+    | Used in Analytics to estimate costs per outgoing message.
+    |
+    */
+
+    'cost' => [
+        'per_message_idr' => env('WHATSAPP_COST_PER_MESSAGE_IDR', 500),
+    ],
 ];

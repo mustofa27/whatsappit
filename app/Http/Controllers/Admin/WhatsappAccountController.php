@@ -8,6 +8,7 @@ use App\Models\WhatsappAccount;
 use App\Services\MetaWhatsappService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 
 class WhatsappAccountController extends Controller
 {
@@ -26,7 +27,7 @@ class WhatsappAccountController extends Controller
 
     public function create()
     {
-        return view('admin.accounts.create-new');
+        return view('admin.accounts.create-wizard');
     }
 
     public function store(Request $request)
@@ -47,6 +48,11 @@ class WhatsappAccountController extends Controller
         $validated['sender_secret'] = 'ss_' . Str::random(40);
         $validated['status'] = 'pending';
         $validated['provider'] = 'meta';
+        
+        // Generate webhook_verify_token if the column exists
+        if (Schema::hasColumn('whatsapp_accounts', 'webhook_verify_token')) {
+            $validated['webhook_verify_token'] = 'wh_' . bin2hex(random_bytes(32));
+        }
 
         $account = WhatsappAccount::create($validated);
 

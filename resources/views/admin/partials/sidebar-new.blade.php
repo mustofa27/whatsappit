@@ -38,6 +38,21 @@
                 <i class="bi bi-file-text fs-5"></i>
                 <span class="sidebar-text ms-3">Templates</span>
             </a>
+
+            <a href="{{ route('admin.analytics.index') }}" class="nav-link text-white {{ request()->routeIs('admin.analytics.*') ? 'bg-primary' : '' }}" title="Analytics">
+                <i class="bi bi-graph-up fs-5"></i>
+                <span class="sidebar-text ms-3">Analytics</span>
+            </a>
+
+            <a href="{{ route('admin.settings.index') }}" class="nav-link text-white {{ request()->routeIs('admin.settings.*') ? 'bg-primary' : '' }}" title="Settings">
+                <i class="bi bi-gear fs-5"></i>
+                <span class="sidebar-text ms-3">Settings</span>
+            </a>
+
+            <a href="{{ route('admin.subscription-plans.index') }}" class="nav-link text-white {{ request()->routeIs('admin.subscription-plans.*') ? 'bg-primary' : '' }}" title="Subscription Plans">
+                <i class="bi bi-credit-card fs-5"></i>
+                <span class="sidebar-text ms-3">Subscription Plans</span>
+            </a>
         </nav>
     </div>
 </div>

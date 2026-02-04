@@ -22,6 +22,7 @@ class WhatsappAccount extends Model
         'phone_number_id',
         'waba_id',
         'access_token',
+        'webhook_verify_token',
         'is_verified',
         'verification_code',
         'verification_code_sent_at',
@@ -40,7 +41,24 @@ class WhatsappAccount extends Model
     protected $hidden = [
         'sender_secret',
         'session_data',
+        'access_token',
+        'webhook_verify_token',
     ];
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Generate webhook_verify_token on create
+        static::creating(function ($model) {
+            if (!$model->webhook_verify_token) {
+                $model->webhook_verify_token = 'wh_' . bin2hex(random_bytes(32));
+            }
+        });
+    }
 
     /**
      * Get the user that owns the WhatsApp account.

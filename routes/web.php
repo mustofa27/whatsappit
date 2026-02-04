@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\WhatsappAccountController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\ConversationController;
@@ -11,6 +12,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('landing');
 })->name('home');
+
+// Webhook for Meta WhatsApp
+Route::match(['get', 'post'], '/webhook/meta', [\App\Http\Controllers\WebhookController::class, 'verify'])->name('webhook.meta');
+
+// Pricing page
+Route::get('/pricing', [\App\Http\Controllers\PricingController::class, 'index'])->name('pricing');
+Route::post('/pricing/calculate', [\App\Http\Controllers\PricingController::class, 'calculator'])->name('pricing.calculate');
 
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -30,6 +38,9 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::post('accounts/{account}/verify-code', [WhatsappAccountController::class, 'verifyCode'])->name('accounts.verify-code');
     Route::post('accounts/{account}/disconnect', [WhatsappAccountController::class, 'disconnect'])->name('accounts.disconnect');
     Route::post('accounts/{account}/regenerate-keys', [WhatsappAccountController::class, 'regenerateKeys'])->name('accounts.regenerate');
+    Route::get('accounts/{account}/webhook-setup', [\App\Http\Controllers\Admin\WebhookSetupController::class, 'show'])->name('accounts.webhook-setup');
+    Route::post('accounts/{account}/webhook-regenerate', [\App\Http\Controllers\Admin\WebhookSetupController::class, 'regenerateToken'])->name('accounts.webhook-regenerate');
+    Route::get('accounts/{account}/webhook-test', [\App\Http\Controllers\Admin\WebhookSetupController::class, 'test'])->name('accounts.webhook-test');
     
     // Messages
     Route::get('messages', [MessageController::class, 'index'])->name('messages.index');
@@ -75,4 +86,13 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         Route::post('/{template}/approve', [\App\Http\Controllers\Admin\TemplateController::class, 'approve'])->name('approve');
         Route::post('/{template}/reject', [\App\Http\Controllers\Admin\TemplateController::class, 'reject'])->name('reject');
     });
-});
+
+    // Analytics (Feature #6)
+    Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+
+    // Settings
+    Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
+    Route::put('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');    
+    // Subscription Plans
+    Route::resource('subscription-plans', \App\Http\Controllers\Admin\SubscriptionPlanController::class);
+    Route::patch('subscription-plans/{subscriptionPlan}/toggle-status', [\App\Http\Controllers\Admin\SubscriptionPlanController::class, 'toggleStatus'])->name('subscription-plans.toggle-status');});

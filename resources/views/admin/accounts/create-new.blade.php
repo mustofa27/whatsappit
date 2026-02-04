@@ -1,9 +1,86 @@
 @extends('admin.layout-new')
 
-@section('title', 'Create WhatsApp Account')
-@section('page-title', 'Create WhatsApp Account')
+@section('title', 'Setup WhatsApp Account')
+@section('page-title', 'Setup WhatsApp Account')
 
 @section('content')
+<style>
+    .setup-wizard {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    .step-indicator::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e9ecef;
+        z-index: 0;
+    }
+    .step-item {
+        flex: 1;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        color: #6c757d;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .step-item.active .step-number {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    .step-item.completed .step-number {
+        background: #10b981;
+        color: white;
+    }
+    .step-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    .step-item.active .step-label {
+        color: #667eea;
+        font-weight: 600;
+    }
+    .instruction-box {
+        background: #f8f9fa;
+        border-left: 4px solid #667eea;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .help-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    .external-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .external-link:hover {
+        text-decoration: underline;
+    }
+</style>
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-8">
