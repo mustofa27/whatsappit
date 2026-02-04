@@ -59,7 +59,7 @@ class WhatsappConversation extends Model
     {
         return $this->messages()
             ->where('direction', 'incoming')
-            ->where('message_status', 'delivered');
+            ->where('status', 'delivered');
     }
 
     /**

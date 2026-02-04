@@ -27,5 +27,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'demo@wait.icminovasi.my.id',
             'password' => bcrypt('password'),
         ]);
+
+        // Seed conversations
+        $this->call(ConversationSeeder::class);
     }
 }

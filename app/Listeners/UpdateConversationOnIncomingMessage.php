@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\IncomingWhatsappMessage;
 use App\Models\WhatsappConversation;
+use App\Models\WhatsappContact;
 
 class UpdateConversationOnIncomingMessage
 {
@@ -14,6 +15,17 @@ class UpdateConversationOnIncomingMessage
     {
         $message = $event->message;
 
+        // Ensure contact exists for this incoming message
+        $contact = WhatsappContact::updateOrCreate(
+            [
+                'whatsapp_account_id' => $message->whatsapp_account_id,
+                'contact_number' => $message->contact_number,
+            ],
+            [
+                'name' => null,
+            ]
+        );
+
         // Find or create conversation
         $conversation = WhatsappConversation::firstOrCreate(
             [
@@ -21,7 +33,7 @@ class UpdateConversationOnIncomingMessage
                 'contact_number' => $message->contact_number,
             ],
             [
-                'contact_name' => null,
+                'contact_name' => $contact->name,
                 'last_message_at' => $message->received_at,
                 'unread_count' => 0,
             ]
@@ -32,6 +44,7 @@ class UpdateConversationOnIncomingMessage
             'last_message_at' => $message->received_at,
             'unread_count' => $conversation->unread_count + 1,
             'is_archived' => false,
+            'contact_name' => $contact->name ?? $conversation->contact_name,
         ]);
     }
 }

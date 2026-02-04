@@ -428,4 +428,148 @@ class MetaWhatsappService
             'account_id' => $account->id,
         ]);
     }
+
+    /**
+     * Submit template to Meta for approval
+     */
+    public function submitTemplate($template, WhatsappAccount $account): array
+    {
+        try {
+            $wabaId = $account->waba_id;
+            $accessToken = $account->access_token;
+
+            if (!$wabaId || !$accessToken) {
+                throw new \Exception('Missing Meta credentials (WABA ID or Access Token)');
+            }
+
+            // Build template components
+            $components = [];
+
+            // Add header component if exists
+            if ($template->header_content && $template->header_type) {
+                $headerComponent = [
+                    'type' => 'HEADER',
+                    'format' => $template->header_type,
+                ];
+
+                if ($template->header_type === 'TEXT') {
+                    $headerComponent['text'] = $template->header_content;
+                } else {
+                    // For media types (IMAGE, VIDEO, DOCUMENT)
+                    $headerComponent['example'] = [
+                        'header_handle' => [$template->header_content]
+                    ];
+                }
+
+                $components[] = $headerComponent;
+            }
+
+            // Add body component (required)
+            $bodyComponent = [
+                'type' => 'BODY',
+                'text' => $template->body_content,
+            ];
+
+            // Add example values for variables if any
+            if ($template->variables && count($template->variables) > 0) {
+                $exampleValues = [];
+                foreach ($template->variables as $index => $variable) {
+                    $exampleValues[] = 'Sample' . ($index + 1);
+                }
+                $bodyComponent['example'] = [
+                    'body_text' => [$exampleValues]
+                ];
+            }
+
+            $components[] = $bodyComponent;
+
+            // Add footer component if exists
+            if ($template->footer_content) {
+                $components[] = [
+                    'type' => 'FOOTER',
+                    'text' => $template->footer_content,
+                ];
+            }
+
+            // Add buttons if exist
+            if ($template->buttons && count($template->buttons) > 0) {
+                $components[] = [
+                    'type' => 'BUTTONS',
+                    'buttons' => $template->buttons,
+                ];
+            }
+
+            // Prepare template data
+            $templateData = [
+                'name' => $template->name,
+                'language' => $template->language,
+                'category' => $template->category,
+                'components' => $components,
+            ];
+
+            // Submit to Meta API
+            $response = Http::withToken($accessToken)
+                ->post("{$this->baseUrl}/{$wabaId}/message_templates", $templateData);
+
+            if (!$response->successful()) {
+                $error = $response->json();
+                $errorMessage = $error['error']['message'] ?? $response->body();
+                throw new \Exception('Meta API error: ' . $errorMessage);
+            }
+
+            $result = $response->json();
+
+            Log::info('Template submitted to Meta', [
+                'template_id' => $template->id,
+                'meta_template_id' => $result['id'] ?? null,
+                'status' => $result['status'] ?? 'unknown',
+            ]);
+
+            return [
+                'success' => true,
+                'meta_template_id' => $result['id'] ?? null,
+                'status' => $result['status'] ?? 'PENDING',
+                'message' => 'Template submitted successfully',
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Failed to submit template to Meta', [
+                'template_id' => $template->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Get template status from Meta
+     */
+    public function getTemplateStatus($metaTemplateId, WhatsappAccount $account): array
+    {
+        try {
+            $accessToken = $account->access_token;
+
+            if (!$accessToken) {
+                throw new \Exception('Missing Meta Access Token');
+            }
+
+            $response = Http::withToken($accessToken)
+                ->get("{$this->baseUrl}/{$metaTemplateId}");
+
+            if (!$response->successful()) {
+                throw new \Exception('Meta API error: ' . $response->body());
+            }
+
+            return $response->json();
+
+        } catch (\Exception $e) {
+            Log::error('Failed to get template status from Meta', [
+                'meta_template_id' => $metaTemplateId,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
 }

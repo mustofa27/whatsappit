@@ -33,11 +33,14 @@ class ConversationController extends Controller
             abort(404, 'No WhatsApp account configured');
         }
 
-        // Get conversations
+        $activeTab = $request->query('tab', 'conversations');
+
+        // Get ALL conversations (both archived and non-archived)
         $conversations = WhatsappConversation::where('whatsapp_account_id', $account->id)
-            ->where('is_archived', false)
             ->orderByDesc('last_message_at')
             ->get()
+            ->unique('contact_number')
+            ->values()
             ->map(function ($conv) {
                 return [
                     'id' => $conv->id,
@@ -50,12 +53,12 @@ class ConversationController extends Controller
             })
             ->toArray();
 
-        // Get selected contact from query parameter
+        // Default values for conversation view
         $selectedContact = $request->query('contact');
         $selectedConversation = null;
         $messages = [];
 
-        if ($selectedContact) {
+        if ($activeTab === 'conversations' && $selectedContact) {
             $selectedConversation = WhatsappConversation::where('whatsapp_account_id', $account->id)
                 ->where('contact_number', $selectedContact)
                 ->first();
@@ -70,7 +73,6 @@ class ConversationController extends Controller
                     'is_archived' => $selectedConversation->is_archived,
                 ];
 
-                // Get messages
                 $messages = WhatsappMessage::where('whatsapp_account_id', $account->id)
                     ->where('contact_number', $selectedContact)
                     ->orderBy('created_at', 'asc')
@@ -90,12 +92,50 @@ class ConversationController extends Controller
             }
         }
 
+        // Message Log data
+        $messageLog = null;
+        $accounts = null;
+        $filters = [
+            'status' => $request->query('status'),
+            'account_id' => $request->query('account_id'),
+            'search' => $request->query('search'),
+        ];
+
+        if ($activeTab === 'log') {
+            $query = WhatsappMessage::with('whatsappAccount');
+
+            if (!empty($filters['status'])) {
+                $query->where('status', $filters['status']);
+            }
+
+            if (!empty($filters['account_id'])) {
+                $query->where('whatsapp_account_id', $filters['account_id']);
+            }
+
+            if (!empty($filters['search'])) {
+                $search = $filters['search'];
+                $query->where(function ($q) use ($search) {
+                    $q->where('contact_number', 'like', '%' . $search . '%')
+                        ->orWhere('receiver_number', 'like', '%' . $search . '%')
+                        ->orWhere('sender_number', 'like', '%' . $search . '%')
+                        ->orWhere('message', 'like', '%' . $search . '%');
+                });
+            }
+
+            $messageLog = $query->latest()->paginate(50)->appends($request->query());
+            $accounts = WhatsappAccount::all();
+        }
+
         return view('admin.conversations.index', [
             'account' => $account,
             'conversations' => $conversations,
             'selected_contact' => $selectedContact,
             'selected_conversation' => $selectedConversation,
             'messages' => $messages,
+            'active_tab' => $activeTab,
+            'message_log' => $messageLog,
+            'accounts' => $accounts,
+            'filters' => $filters,
         ]);
     }
 
@@ -113,13 +153,17 @@ class ConversationController extends Controller
     public function markAsRead(string $contactNumber): RedirectResponse
     {
         $account = WhatsappAccount::first();
-        $conversation = WhatsappConversation::where('whatsapp_account_id', $account->id)
+        // Mark all incoming delivered messages as read for this contact
+        WhatsappMessage::where('whatsapp_account_id', $account->id)
             ->where('contact_number', $contactNumber)
-            ->first();
+            ->where('direction', 'incoming')
+            ->where('status', 'delivered')
+            ->update(['status' => 'read']);
 
-        if ($conversation) {
-            $conversation->markAsRead();
-        }
+        // Reset unread_count for all conversations with this contact (handles duplicates)
+        WhatsappConversation::where('whatsapp_account_id', $account->id)
+            ->where('contact_number', $contactNumber)
+            ->update(['unread_count' => 0]);
 
         return redirect()->route('admin.conversations.index', ['contact' => $contactNumber])
             ->with('success', 'Conversation marked as read');

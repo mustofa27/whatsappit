@@ -18,15 +18,25 @@
                 <i class="bi bi-phone fs-5"></i>
                 <span class="sidebar-text ms-3">WhatsApp Accounts</span>
             </a>
-            
-            <a href="{{ route('admin.messages.index') }}" class="nav-link text-white {{ request()->routeIs('admin.messages.*') ? 'bg-primary' : '' }}" title="Messages">
-                <i class="bi bi-envelope fs-5"></i>
-                <span class="sidebar-text ms-3">Messages</span>
-            </a>
 
+            <a href="{{ route('admin.contacts.index') }}" class="nav-link text-white {{ request()->routeIs('admin.contacts.*') ? 'bg-primary' : '' }}" title="Contacts">
+                <i class="bi bi-people fs-5"></i>
+                <span class="sidebar-text ms-3">Contacts</span>
+            </a>
+            
             <a href="{{ route('admin.conversations.index') }}" class="nav-link text-white {{ request()->routeIs('admin.conversations.*') ? 'bg-primary' : '' }}" title="Conversations">
                 <i class="bi bi-chat-dots fs-5"></i>
                 <span class="sidebar-text ms-3">Conversations</span>
+            </a>
+
+            <a href="{{ route('admin.scheduled-messages.index') }}" class="nav-link text-white {{ request()->routeIs('admin.scheduled-messages.*') ? 'bg-primary' : '' }}" title="Message Queue">
+                <i class="bi bi-clock-history fs-5"></i>
+                <span class="sidebar-text ms-3">Message Queue</span>
+            </a>
+
+            <a href="{{ route('admin.templates.index') }}" class="nav-link text-white {{ request()->routeIs('admin.templates.*') ? 'bg-primary' : '' }}" title="Templates">
+                <i class="bi bi-file-text fs-5"></i>
+                <span class="sidebar-text ms-3">Templates</span>
             </a>
         </nav>
     </div>
