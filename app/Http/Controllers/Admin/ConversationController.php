@@ -25,9 +25,11 @@ class ConversationController extends Controller
      */
     public function index(Request $request): View
     {
-        // Get account ID from authenticated user or request
-        // For now, we'll use the first account - in production, implement proper user-account mapping
-        $account = WhatsappAccount::first();
+        $currentUser = auth()->user();
+        $owner = $currentUser->getEffectiveOwner();
+        
+        // Get the first account belonging to the owner
+        $account = WhatsappAccount::where('user_id', $owner->id)->first();
 
         if (!$account) {
             abort(404, 'No WhatsApp account configured');

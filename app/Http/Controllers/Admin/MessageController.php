@@ -10,7 +10,13 @@ class MessageController extends Controller
 {
     public function index(Request $request)
     {
-        $query = WhatsappMessage::with('whatsappAccount');
+        $currentUser = auth()->user();
+        $owner = $currentUser->getEffectiveOwner();
+        
+        $query = WhatsappMessage::with('whatsappAccount')
+            ->whereHas('whatsappAccount', function($q) use ($owner) {
+                $q->where('user_id', $owner->id);
+            });
 
         // Filter by status
         if ($request->has('status') && $request->status != '') {

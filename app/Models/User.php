@@ -202,4 +202,24 @@ class User extends Authenticatable
         {
             return $this->hasMany(TeamMember::class, 'user_id');
         }
-}
+
+        /**
+         * Get the effective account owner for this user
+         * If user is a team member, returns the team owner
+         * Otherwise returns the user themselves
+         */
+        public function getEffectiveOwner(): User
+        {
+            // Check if user is an active team member
+            $teamMembership = $this->memberOfTeams()
+                ->where('status', 'active')
+                ->with('owner')
+                ->first();
+
+            if ($teamMembership && $teamMembership->owner->hasActiveSubscription()) {
+                return $teamMembership->owner;
+            }
+
+            // Return self if no active team membership or owner has no subscription
+            return $this;
+        }

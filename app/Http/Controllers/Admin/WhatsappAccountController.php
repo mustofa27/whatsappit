@@ -21,7 +21,14 @@ class WhatsappAccountController extends Controller
 
     public function index()
     {
-        $accounts = WhatsappAccount::with('user')->latest()->paginate(20);
+        $currentUser = auth()->user();
+        $owner = $currentUser->getEffectiveOwner();
+        
+        $accounts = WhatsappAccount::where('user_id', $owner->id)
+            ->with('user')
+            ->latest()
+            ->paginate(20);
+        
         return view('admin.accounts.index-new', compact('accounts'));
     }
 
@@ -33,10 +40,11 @@ class WhatsappAccountController extends Controller
     public function store(Request $request)
     {
         // Check subscription account limit
-        $user = auth()->user();
+        $currentUser = auth()->user();
+        $owner = $currentUser->getEffectiveOwner();
         
-        if (!$user->canCreateWhatsappAccount()) {
-            $maxAccounts = $user->getMaxWhatsappAccounts();
+        if (!$owner->canCreateWhatsappAccount()) {
+            $maxAccounts = $owner->getMaxWhatsappAccounts();
             return back()->with('error', "You've reached your WhatsApp account limit ({$maxAccounts}). Please upgrade your subscription to add more accounts.");
         }
 
@@ -48,8 +56,8 @@ class WhatsappAccountController extends Controller
             'access_token' => 'required|string',
         ]);
 
-        // Auto-set user_id from logged in user
-        $validated['user_id'] = auth()->id();
+        // Set user_id to the effective owner (team owner if team member, otherwise self)
+        $validated['user_id'] = $owner->id;
         
         // Generate sender_key and sender_secret
         $validated['sender_key'] = 'sk_' . Str::random(32);

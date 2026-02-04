@@ -12,7 +12,13 @@ class WhatsappContactController extends Controller
 {
     public function index(Request $request)
     {
-        $query = WhatsappContact::with('whatsappAccount');
+        $currentUser = auth()->user();
+        $owner = $currentUser->getEffectiveOwner();
+        
+        $query = WhatsappContact::with('whatsappAccount')
+            ->whereHas('whatsappAccount', function($q) use ($owner) {
+                $q->where('user_id', $owner->id);
+            });
 
         if ($request->filled('search')) {
             $search = $request->input('search');
