@@ -150,15 +150,29 @@ class XenditService
             $status = $data['status'] ?? null;
             $invoiceId = $data['id'] ?? null;
 
-            if (!$externalId || !$status) {
-                Log::warning('Invalid webhook data', ['data' => $data]);
+            if (!$externalId && !$invoiceId) {
+                Log::warning('Invalid webhook data - no external_id or invoice id', ['data' => $data]);
                 return false;
             }
 
+            if (!$status) {
+                Log::warning('Invalid webhook data - missing status', ['data' => $data]);
+                return false;
+            }
+
+            // Try to find payment by external_id first
             $payment = SubscriptionPayment::where('external_id', $externalId)->first();
 
+            // If not found, try by invoice_id (transaction_id)
+            if (!$payment && $invoiceId) {
+                $payment = SubscriptionPayment::where('transaction_id', $invoiceId)->first();
+            }
+
             if (!$payment) {
-                Log::warning('Payment not found', ['external_id' => $externalId]);
+                Log::warning('Payment not found', [
+                    'external_id' => $externalId,
+                    'invoice_id' => $invoiceId,
+                ]);
                 return false;
             }
 
