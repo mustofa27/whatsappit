@@ -3,25 +3,13 @@
 @section('title', 'Choose Your Plan')
 
 @section('content')
-<div class="container py-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold">Choose Your Plan</h1>
-        <p class="lead text-muted">Select the perfect plan for your business needs</p>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h4 mb-1">Choose Your Plan</h2>
+            <p class="text-muted mb-0">Select the perfect plan for your business needs</p>
+        </div>
     </div>
-
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
 
     @if(session('info'))
         <div class="alert alert-info alert-dismissible fade show" role="alert">
@@ -50,13 +38,12 @@
         @foreach($plans as $plan)
             <div class="col-md-4">
                 <div class="card h-100 {{ $plan->is_popular ? 'border-primary shadow' : '' }}">
-                    @if($plan->is_popular)
-                        <div class="card-header bg-primary text-white text-center">
-                            <i class="bi bi-star-fill me-1"></i> Most Popular
-                        </div>
-                    @endif
-                    
-                    <div class="card-body d-flex flex-column">
+                    <div class="card-body d-flex flex-column position-relative">
+                        @if($plan->is_popular)
+                            <span class="badge bg-warning text-dark position-absolute" style="top: 12px; right: 12px;">
+                                Popular
+                            </span>
+                        @endif
                         <h3 class="card-title">{{ $plan->name }}</h3>
                         <div class="mb-3">
                             <h2 class="display-5 fw-bold">{{ $plan->formatted_price }}</h2>

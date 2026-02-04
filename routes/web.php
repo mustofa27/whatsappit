@@ -41,7 +41,7 @@ Route::middleware('auth')->prefix('subscription')->name('subscription.')->group(
 });
 
 // Admin Routes (Protected)
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.subscription'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     
     // WhatsApp Accounts Management

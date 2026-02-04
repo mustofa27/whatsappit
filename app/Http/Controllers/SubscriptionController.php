@@ -6,8 +6,9 @@ use App\Models\SubscriptionPlan;
 use App\Models\UserSubscription;
 use App\Services\XenditService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller as BaseController;
 
-class SubscriptionController extends Controller
+class SubscriptionController extends BaseController
 {
     protected XenditService $xendit;
 
