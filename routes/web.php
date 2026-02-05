@@ -117,10 +117,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.subscription'
     // Analytics (Feature #6)
     Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 
-    // Profile
-    Route::get('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
-
     // Settings
     Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::put('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
@@ -140,6 +136,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.subscription'
 
 // Pending Invitations (auth only, no subscription required for invited users)
 Route::get('/admin/pending-invitations', [\App\Http\Controllers\Admin\TeamMemberController::class, 'pendingInvitations'])->middleware('auth')->name('admin.pending-invitations');
+
+// Profile Routes (auth only, no subscription required)
+Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
+});
 
 // Team Member Invitation Routes (Public)
 Route::post('/team-invite/{token}/accept', [\App\Http\Controllers\Admin\TeamMemberController::class, 'acceptInvitation'])->middleware('auth')->name('team-members.accept');
