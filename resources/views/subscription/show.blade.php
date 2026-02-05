@@ -97,15 +97,30 @@
                                                 @if($payment->status === 'paid')
                                                     <span class="badge bg-success">Paid</span>
                                                 @elseif($payment->status === 'pending')
-                                                    <span class="badge bg-warning">Pending</span>
+                                                    @if($payment->expires_at && $payment->expires_at->isFuture())
+                                                        <span class="badge bg-warning">Pending</span>
+                                                    @else
+                                                        <span class="badge bg-danger">Expired</span>
+                                                    @endif
                                                 @elseif($payment->status === 'failed')
                                                     <span class="badge bg-danger">Failed</span>
+                                                @elseif($payment->status === 'expired')
+                                                    <span class="badge bg-secondary">Expired</span>
                                                 @else
                                                     <span class="badge bg-secondary">{{ ucfirst($payment->status) }}</span>
                                                 @endif
                                             </td>
                                             <td>
-                                                <code class="small">{{ $payment->transaction_id ? substr($payment->transaction_id, 0, 20) . '...' : 'N/A' }}</code>
+                                                <div class="d-flex gap-2 align-items-center">
+                                                    <code class="small text-truncate" style="max-width: 120px;">{{ $payment->transaction_id ? substr($payment->transaction_id, 0, 15) . '...' : 'N/A' }}</code>
+                                                    @if(($payment->status === 'pending' && $payment->expires_at && $payment->expires_at->isFuture()) || $payment->status === 'failed' || $payment->status === 'expired')
+                                                        @if($payment->checkout_url)
+                                                            <a href="{{ $payment->checkout_url }}" target="_blank" class="btn btn-sm btn-primary" title="Retry Payment">
+                                                                <i class="bi bi-arrow-repeat"></i> Retry
+                                                            </a>
+                                                        @endif
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
