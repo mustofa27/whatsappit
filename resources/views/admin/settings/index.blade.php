@@ -66,5 +66,40 @@
             </button>
         </div>
     </form>
+
+    <!-- Test Email Configuration -->
+    <div class="card shadow-sm border-info">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-envelope-check me-2"></i>Test Email Configuration</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-3">
+                Send a test email to verify your SMTP configuration is working correctly.
+            </p>
+            <form method="POST" action="{{ route('admin.settings.test-email') }}" class="row g-3">
+                @csrf
+                <div class="col-md-8">
+                    <label for="test_email" class="form-label">Email Address</label>
+                    <input 
+                        type="email" 
+                        name="test_email" 
+                        id="test_email" 
+                        class="form-control @error('test_email') is-invalid @enderror" 
+                        placeholder="your@email.com"
+                        value="{{ old('test_email', auth()->user()->email) }}"
+                        required
+                    >
+                    @error('test_email')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-info w-100">
+                        <i class="bi bi-send me-1"></i> Send Test Email
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 @endsection

@@ -32,9 +32,29 @@
 
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" 
-                       required placeholder="Enter your password">
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" name="password" 
+                           required placeholder="Enter your password">
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
             </div>
+            <script>
+                document.getElementById('togglePassword').addEventListener('click', function() {
+                    const passwordInput = document.getElementById('password');
+                    const icon = this.querySelector('i');
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        icon.classList.remove('bi-eye');
+                        icon.classList.add('bi-eye-slash');
+                    } else {
+                        passwordInput.type = 'password';
+                        icon.classList.remove('bi-eye-slash');
+                        icon.classList.add('bi-eye');
+                    }
+                });
+            </script>
 
             <div class="mb-3 form-check">
                 <input type="checkbox" class="form-check-input" id="remember" name="remember">
@@ -51,6 +71,9 @@
                 <p class="mb-0">
                     Don't have an account? 
                     <a href="{{ route('register') }}" class="text-decoration-none">Sign Up</a>
+                </p>
+                <p class="mb-0 mt-2">
+                    <a href="{{ route('password.forgot') }}" class="text-decoration-none">Forgot Password?</a>
                 </p>
             </div>
         </form>

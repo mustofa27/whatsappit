@@ -30,6 +30,12 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Password Reset Routes
+Route::get('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'showForgotForm'])->name('password.forgot');
+Route::post('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLink'])->name('password.send-reset-link');
+Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'resetPassword'])->name('password.update');
+
 // Subscription Routes (Protected)
 Route::middleware('auth')->prefix('subscription')->name('subscription.')->group(function () {
     Route::get('/', [\App\Http\Controllers\SubscriptionController::class, 'index'])->name('index');
@@ -106,6 +112,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.subscription'
     // Settings
     Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::put('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
+    Route::post('settings/test-email', [\App\Http\Controllers\Admin\SettingsController::class, 'sendTestEmail'])->name('settings.test-email');
     
     // User Management (Admin Only)
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
