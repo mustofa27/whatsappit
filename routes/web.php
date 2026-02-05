@@ -105,7 +105,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.subscription'
 
     // Settings
     Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
-    Route::put('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');    
+    Route::put('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
+    
+    // User Management (Admin Only)
+    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+    
     // Subscription Plans
     Route::resource('subscription-plans', \App\Http\Controllers\Admin\SubscriptionPlanController::class);
     Route::patch('subscription-plans/{subscriptionPlan}/toggle-status', [\App\Http\Controllers\Admin\SubscriptionPlanController::class, 'toggleStatus'])->name('subscription-plans.toggle-status');});

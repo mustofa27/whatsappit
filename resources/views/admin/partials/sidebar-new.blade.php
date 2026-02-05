@@ -60,6 +60,11 @@
             </a>
 
             @if(auth()->user()->is_admin)
+            <a href="{{ route('admin.users.index') }}" class="nav-link text-white {{ request()->routeIs('admin.users.*') ? 'bg-primary' : '' }}" title="User Management">
+                <i class="bi bi-people fs-5"></i>
+                <span class="sidebar-text ms-3">User Management</span>
+            </a>
+
             <a href="{{ route('admin.settings.index') }}" class="nav-link text-white {{ request()->routeIs('admin.settings.*') ? 'bg-primary' : '' }}" title="Settings">
                 <i class="bi bi-gear fs-5"></i>
                 <span class="sidebar-text ms-3">Settings</span>
