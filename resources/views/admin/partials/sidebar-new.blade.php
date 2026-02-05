@@ -60,6 +60,11 @@
             </a>
 
             @if(auth()->user()->is_admin)
+            <hr class="bg-secondary my-2">
+            <div class="nav-link text-white-50 px-0 py-1" style="cursor: default;">
+                <small class="text-uppercase fw-bold">Administration</small>
+            </div>
+            
             <a href="{{ route('admin.users.index') }}" class="nav-link text-white {{ request()->routeIs('admin.users.*') ? 'bg-primary' : '' }}" title="User Management">
                 <i class="bi bi-people fs-5"></i>
                 <span class="sidebar-text ms-3">User Management</span>
