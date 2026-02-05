@@ -48,9 +48,9 @@ class PaypoolService
         }
 
         // Add redirect URLs only if explicitly provided (per-payment override)
-        // Priority: options > .env config > omit (use Paypool app defaults)
-        $successUrl = $options['success_url'] ?? config('services.paypool.success_redirect_url');
-        $failureUrl = $options['failure_url'] ?? config('services.paypool.failure_redirect_url');
+        // If omitted, Paypool will use the app defaults configured in its admin panel
+        $successUrl = $options['success_url'] ?? null;
+        $failureUrl = $options['failure_url'] ?? null;
 
         if ($successUrl) {
             $payload['success_redirect_url'] = $successUrl;

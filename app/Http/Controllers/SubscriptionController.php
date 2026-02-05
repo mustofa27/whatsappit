@@ -50,11 +50,8 @@ class SubscriptionController extends BaseController
             'status' => 'pending',
         ]);
 
-        // Create payment via Paypool
-        $result = $this->paypool->createPayment($subscription, [
-            'success_url' => route('subscription.success'),
-            'failure_url' => route('subscription.failed'),
-        ]);
+        // Create payment via Paypool (use Paypool app default redirects)
+        $result = $this->paypool->createPayment($subscription);
 
         if ($result['success']) {
             return redirect()->away($result['invoice_url']);
