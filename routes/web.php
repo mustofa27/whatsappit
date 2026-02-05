@@ -13,6 +13,11 @@ Route::get('/', function () {
     return view('landing');
 })->name('home');
 
+// Privacy Policy (required by Meta)
+Route::get('/privacy-policy', function () {
+    return view('privacy-policy');
+})->name('privacy.policy');
+
 // Webhook for Meta WhatsApp
 Route::match(['get', 'post'], '/webhook/meta', [\App\Http\Controllers\WebhookController::class, 'verify'])->name('webhook.meta');
 
