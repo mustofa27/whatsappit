@@ -4,18 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\SubscriptionPlan;
 use App\Models\UserSubscription;
-use App\Services\XenditService;
+use App\Services\PaypoolService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 
 class SubscriptionController extends BaseController
 {
-    protected XenditService $xendit;
+    protected PaypoolService $paypool;
 
-    public function __construct(XenditService $xendit)
+    public function __construct(PaypoolService $paypool)
     {
         $this->middleware('auth');
-        $this->xendit = $xendit;
+        $this->paypool = $paypool;
     }
 
     /**
@@ -50,8 +50,8 @@ class SubscriptionController extends BaseController
             'status' => 'pending',
         ]);
 
-        // Create Xendit invoice
-        $result = $this->xendit->createInvoice($subscription, [
+        // Create payment via Paypool
+        $result = $this->paypool->createPayment($subscription, [
             'success_url' => route('subscription.success'),
             'failure_url' => route('subscription.failed'),
         ]);

@@ -21,7 +21,10 @@ Route::get('/privacy-policy', function () {
 // Webhook for Meta WhatsApp
 Route::match(['get', 'post'], '/webhook/meta', [\App\Http\Controllers\WebhookController::class, 'verify'])->name('webhook.meta');
 
-// Xendit Payment Webhook
+// Paypool Payment Webhook
+Route::post('/webhook/paypool', [\App\Http\Controllers\PaypoolWebhookController::class, 'handle'])->name('webhook.paypool');
+
+// Xendit Payment Webhook (deprecated, kept for compatibility)
 Route::post('/webhook/xendit', [\App\Http\Controllers\XenditWebhookController::class, 'handle'])->name('webhook.xendit');
 
 // Pricing page

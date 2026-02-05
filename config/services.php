@@ -69,4 +69,15 @@ return [
         'base_url' => env('XENDIT_BASE_URL', 'https://api.xendit.co'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Paypool Payment Service Configuration (Centralized Payment Handler)
+    |--------------------------------------------------------------------------
+    */
+    
+    'paypool' => [
+        'base_url' => env('PAYPOOL_BASE_URL', 'http://localhost'),
+        'access_token' => env('PAYPOOL_ACCESS_TOKEN'),
+    ],
+
 ];
