@@ -35,9 +35,15 @@ class PaypoolService
             'currency' => 'IDR',
             'customer_name' => $user->name,
             'customer_email' => $user->email,
+            'description' => 'Subscription: ' . $plan->name,
+            'items' => [
+                [
+                    'name' => $plan->name,
+                    'quantity' => 1,
+                    'price' => $amount,
+                ]
+            ],
         ];
-
-        // Optional fields can be enabled after successful creation
 
         // Add redirect URLs only if explicitly provided (per-payment override)
         // If omitted, Paypool will use the app defaults configured in its admin panel
