@@ -42,9 +42,19 @@ class PaypoolService
                 'subscription_id' => $subscription->id,
                 'plan_id' => $plan->id,
             ],
-            'success_redirect_url' => $options['success_url'] ?? route('subscription.success'),
-            'failure_redirect_url' => $options['failure_url'] ?? route('subscription.failed'),
         ];
+
+        // Add redirect URLs only if explicitly provided (per-payment override)
+        // Priority: options > .env config > omit (use Paypool app defaults)
+        $successUrl = $options['success_url'] ?? config('services.paypool.success_redirect_url');
+        $failureUrl = $options['failure_url'] ?? config('services.paypool.failure_redirect_url');
+
+        if ($successUrl) {
+            $payload['success_redirect_url'] = $successUrl;
+        }
+        if ($failureUrl) {
+            $payload['failure_redirect_url'] = $failureUrl;
+        }
 
         try {
             $response = Http::withToken($this->accessToken)
