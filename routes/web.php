@@ -117,6 +117,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.subscription'
     // Analytics (Feature #6)
     Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 
+    // Profile
+    Route::get('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
+
     // Settings
     Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::put('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
