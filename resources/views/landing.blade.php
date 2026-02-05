@@ -251,8 +251,9 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-landing fixed-top" id="mainNavbar">
         <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="bi bi-whatsapp me-2"></i>WAIt
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="{{ asset('assets/logo-wait-3.svg') }}" alt="WAIt Logo" height="32" class="me-2">
+                WAIt
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -303,7 +304,7 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="text-center">
-                        <i class="bi bi-phone text-white" style="font-size: 15rem; opacity: 0.2;"></i>
+                        <img src="{{ asset('assets/logo-wait-3.svg') }}" alt="WAIt Logo" class="img-fluid" style="max-width: 320px; opacity: 0.95;">
                     </div>
                 </div>
             </div>

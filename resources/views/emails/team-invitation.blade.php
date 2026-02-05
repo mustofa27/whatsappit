@@ -1,12 +1,16 @@
 @component('mail::message')
+<p style="text-align: center; margin: 0 0 16px;">
+	<img src="{{ config('app.url') }}/assets/logo-wait-3.svg" alt="WAIt Logo" height="64">
+</p>
+
 # You're Invited to Join a Team
 
 Hi {{ $teamMember->user->name }},
 
-{{ $inviter->name }} has invited you to join their team on **WhatsAppIt** as a **{{ ucfirst($teamMember->role) }}**.
+{{ $inviter->name }} has invited you to join their team on **WAIt** as a **{{ ucfirst($teamMember->role) }}**.
 
-## What is WhatsAppIt?
-WhatsAppIt is a powerful WhatsApp Business management platform that helps teams collaborate on customer communications.
+## What is WAIt?
+WAIt is a powerful WhatsApp Business management platform that helps teams collaborate on customer communications.
 
 ## Your Role
 As a **{{ ucfirst($teamMember->role) }}**:
@@ -42,5 +46,5 @@ Reject Invitation
 If you didn't expect this invitation, you can safely ignore this email.
 
 Thanks,<br>
-WhatsAppIt Team
+WAIt Team
 @endcomponent

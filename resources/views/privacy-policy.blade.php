@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - WAIt (WhatsApp IT)</title>
+    <title>Privacy Policy - WAIt</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -52,9 +52,10 @@
 </head>
 <body>
     <div class="header">
-        <div class="container">
+        <div class="container text-center">
+            <img src="{{ asset('assets/logo-wait-3.svg') }}" alt="WAIt Logo" height="72" class="mb-3">
             <h1 class="mb-0">Privacy Policy</h1>
-            <p class="mb-0 mt-2">WAIt (WhatsApp IT)</p>
+            <p class="mb-0 mt-2">WAIt</p>
         </div>
     </div>
 
@@ -64,7 +65,7 @@
         <div class="section">
             <h2>1. Introduction</h2>
             <p>
-                Welcome to WAIt (WhatsApp IT). We are committed to protecting your privacy and ensuring the security of your personal information. 
+                Welcome to WAIt. We are committed to protecting your privacy and ensuring the security of your personal information. 
                 This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our WhatsApp messaging service.
             </p>
             <p>
@@ -279,7 +280,7 @@
 
     <footer class="bg-dark text-white py-4 mt-5">
         <div class="container text-center">
-            <p class="mb-0">&copy; {{ date('Y') }} WAIt (WhatsApp IT). All rights reserved.</p>
+            <p class="mb-0">&copy; {{ date('Y') }} WAIt. All rights reserved.</p>
         </div>
     </footer>
 </body>
