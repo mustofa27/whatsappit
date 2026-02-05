@@ -27,7 +27,7 @@ class PaypoolService
         $plan = $subscription->plan;
         
         $externalId = 'WAIT-SUB-' . $subscription->id . '-' . time();
-        $amount = $plan->price;
+        $amount = (int) $plan->price;
 
         $payload = [
             'external_id' => $externalId,
@@ -35,7 +35,6 @@ class PaypoolService
             'currency' => 'IDR',
             'customer_name' => $user->name,
             'customer_email' => $user->email,
-            'customer_phone' => $user->phone ?? '',
             'description' => 'Subscription: ' . $plan->name,
             'metadata' => [
                 'user_id' => $user->id,
@@ -43,6 +42,10 @@ class PaypoolService
                 'plan_id' => $plan->id,
             ],
         ];
+
+        if (!empty($user->phone)) {
+            $payload['customer_phone'] = $user->phone;
+        }
 
         // Add redirect URLs only if explicitly provided (per-payment override)
         // Priority: options > .env config > omit (use Paypool app defaults)
@@ -57,6 +60,12 @@ class PaypoolService
         }
 
         try {
+            Log::info('Creating Paypool payment', [
+                'external_id' => $externalId,
+                'amount' => $amount,
+                'payload' => $payload,
+            ]);
+
             $response = Http::withToken($this->accessToken)
                 ->post($this->baseUrl . '/api/v1/payments/create', $payload);
 
@@ -93,6 +102,7 @@ class PaypoolService
                 'response' => $response->json(),
                 'status' => $response->status(),
                 'external_id' => $externalId,
+                'payload' => $payload,
             ]);
 
             return [
