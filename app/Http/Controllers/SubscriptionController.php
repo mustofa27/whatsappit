@@ -78,6 +78,12 @@ class SubscriptionController extends BaseController
                 'started_at' => now(),
                 'expires_at' => now()->addMonth(),
             ]);
+
+            // Also mark the payment as paid
+            $latestPayment = $subscription->payments()->latest()->first();
+            if ($latestPayment && $latestPayment->status === 'pending') {
+                $latestPayment->update(['status' => 'paid']);
+            }
         }
 
         return view('subscription.success');
