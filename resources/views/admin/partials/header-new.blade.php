@@ -18,7 +18,7 @@
                     <li><h6 class="dropdown-header">{{ auth()->user()->email }}</h6></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <a class="dropdown-item" href="{{ route('admin.profile.edit') }}">
+                        <a class="dropdown-item" href="{{ url('admin/profile') }}">
                             <i class="bi bi-person me-2"></i> My Profile
                         </a>
                     </li>
