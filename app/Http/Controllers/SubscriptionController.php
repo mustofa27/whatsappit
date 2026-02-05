@@ -68,6 +68,18 @@ class SubscriptionController extends BaseController
      */
     public function success(Request $request)
     {
+        $user = auth()->user();
+        $subscription = $user->subscriptions()->where('status', 'pending')->latest()->first();
+
+        // Fallback: Manually activate pending subscription if webhook hasn't processed yet
+        if ($subscription) {
+            $subscription->update([
+                'status' => 'active',
+                'started_at' => now(),
+                'expires_at' => now()->addMonth(),
+            ]);
+        }
+
         return view('subscription.success');
     }
 
