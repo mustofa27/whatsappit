@@ -32,28 +32,12 @@ class PaypoolService
         $payload = [
             'external_id' => $externalId,
             'amount' => $amount,
+            'currency' => 'IDR',
             'customer_name' => $user->name,
             'customer_email' => $user->email,
         ];
 
-        // Optional fields (only include when present to avoid validation issues)
-        if (!empty($plan->name)) {
-            $payload['description'] = 'Subscription: ' . $plan->name;
-        }
-
-        $metadata = [
-            'user_id' => $user->id,
-            'subscription_id' => $subscription->id,
-            'plan_id' => $plan->id,
-        ];
-
-        if (!empty(array_filter($metadata, fn ($value) => $value !== null && $value !== ''))) {
-            $payload['metadata'] = $metadata;
-        }
-
-        if (!empty($user->phone)) {
-            $payload['customer_phone'] = $user->phone;
-        }
+        // Optional fields can be enabled after successful creation
 
         // Add redirect URLs only if explicitly provided (per-payment override)
         // If omitted, Paypool will use the app defaults configured in its admin panel
